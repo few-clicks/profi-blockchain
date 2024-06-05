@@ -4,8 +4,9 @@ import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 import DashboardLayout from 'src/layouts/dashboard';
 
 export const IndexPage = lazy(() => import('src/pages/app'));
-export const BlogPage = lazy(() => import('src/pages/blog'));
 export const LoginPage = lazy(() => import('src/pages/login'));
+export const BlockchainPage = lazy(() => import('src/pages/blockchain'));
+export const ProjectPage = lazy(() => import('src/pages/project'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 
 // ----------------------------------------------------------------------
@@ -22,7 +23,8 @@ export default function Router() {
       ),
       children: [
         { element: <IndexPage />, index: true },
-        { path: 'blog', element: <BlogPage /> },
+        { path: 'project', element: <ProjectPage /> },
+        { path: 'blockchain', element: <BlockchainPage /> },
       ],
     },
     {

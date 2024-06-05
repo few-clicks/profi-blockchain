@@ -14,14 +14,14 @@ import PostSearch from '../post-search';
 
 // ----------------------------------------------------------------------
 
-export default function BlogView() {
+export default function BlockchainView() {
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Blog</Typography>
+        <Typography variant="h4">Blockchain</Typography>
 
         <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
-          New Post
+          New Card
         </Button>
       </Stack>
 
