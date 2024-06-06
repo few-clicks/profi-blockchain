@@ -22,10 +22,15 @@ import AppConversionRates from '../app-conversion-rates';
 export default function AppView() {
   const [currentPrice, setCurrentPrice] = useState(0);
   const [marketCap, setMarketCap] = useState(0);
-  const [totalValume, setTotalValume] = useState(0);
+  const [totalVolume, setTotalVolume] = useState(0);
 
   const [maxPrice, setMaxPrice] = useState(0);
   const [minPrice, setMinPrice] = useState(0);
+
+  const [dates, setDates] = useState([]);
+  const [prices, setPrices] = useState([]);
+  const [marketCaps, setMarketCaps] = useState([]);
+  const [totalVolumes, setTotalVolumes] = useState([]);
 
   useEffect(() => {
     fetch('http://localhost:4000/info')
@@ -36,12 +41,16 @@ export default function AppView() {
         return response.json();
       })
       .then((data) => {
-        console.log(data);
         setCurrentPrice(data?.crypto?.currentPrice);
         setMarketCap(data?.crypto?.marketCap);
-        setTotalValume(data?.crypto?.totalVolume);
+        setTotalVolume(data?.crypto?.totalVolume);
         setMaxPrice(data?.crypto?.dailyMax);
         setMinPrice(data?.crypto?.dailyMin);
+
+        setDates(data?.dates);
+        setPrices(data?.prices);
+        setMarketCaps(data?.marketCaps);
+        setTotalVolumes(data?.totalVolumes);
       })
       .catch((error) => {
         console.error('There has been a problem with your fetch operation:', error);
@@ -76,7 +85,7 @@ export default function AppView() {
         <Grid xs={12} sm={4}>
           <AppWidgetSummary
             title="Total Value"
-            total={Number(totalValume)}
+            total={Number(totalVolume)}
             color="warning"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
           />
@@ -89,42 +98,52 @@ export default function AppView() {
           <AppWidgetSummary title="Minimum (24h)" total={Number(minPrice)} color="error" />
         </Grid>
 
-        <Grid xs={12} md={6} lg={8}>
+        <Grid xs={12}>
           <AppWebsiteVisits
-            title="Website Visits"
-            subheader="(+43%) than last year"
+            title="Prices"
+            subheader="Ethereum"
             chart={{
-              labels: [
-                '01/01/2003',
-                '02/01/2003',
-                '03/01/2003',
-                '04/01/2003',
-                '05/01/2003',
-                '06/01/2003',
-                '07/01/2003',
-                '08/01/2003',
-                '09/01/2003',
-                '10/01/2003',
-                '11/01/2003',
-              ],
+              labels: dates,
               series: [
                 {
-                  name: 'Team A',
-                  type: 'column',
-                  fill: 'solid',
-                  data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
-                },
-                {
-                  name: 'Team B',
-                  type: 'area',
-                  fill: 'gradient',
-                  data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
-                },
-                {
-                  name: 'Team C',
+                  name: 'Price',
                   type: 'line',
                   fill: 'solid',
-                  data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
+                  data: prices,
+                },
+              ],
+            }}
+          />
+        </Grid>
+        <Grid xs={12}>
+          <AppWebsiteVisits
+            title="Total volume"
+            subheader="Ethereum"
+            chart={{
+              labels: dates,
+              series: [
+                {
+                  name: 'Total volume',
+                  type: 'column',
+                  fill: 'solid',
+                  data: totalVolumes,
+                },
+              ],
+            }}
+          />
+        </Grid>
+        <Grid xs={12} md={6} lg={8}>
+          <AppWebsiteVisits
+            title="Market cap"
+            subheader="Ethereum"
+            chart={{
+              labels: dates,
+              series: [
+                {
+                  name: 'Market cap',
+                  type: 'area',
+                  fill: 'gradient',
+                  data: marketCaps,
                 },
               ],
             }}

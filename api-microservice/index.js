@@ -9,7 +9,7 @@ app.use(cors());
 const API_ENDPOINTS = {
 	crypto: "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=ethereum",
 	capitalization: "https://api.coingecko.com/api/v3/global",
-	chart: "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=10&interval=daily",
+	chart: "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=30&interval=daily",
 };
 
 app.get("/info", async (_, res) => {
@@ -27,6 +27,15 @@ app.get("/info", async (_, res) => {
 				acc["prices"] = data?.prices.map((el) => el[1]);
 				acc["marketCaps"] = data?.market_caps.map((el) => el[1]);
 				acc["totalVolumes"] = data?.total_volumes.map((el) => el[1]);
+				acc["dates"] = data?.prices.map((el) => {
+					const date = new Date(el[0]);
+
+					const year = date.getFullYear();
+					const month = date.getMonth() + 1;
+					const day = date.getDate();
+
+					return `${month}/${day}/${year}`;
+				});
 			} else if (key === "capitalization") {
 				acc[key] = data?.data?.market_cap_percentage;
 			} else {
@@ -43,7 +52,7 @@ app.get("/info", async (_, res) => {
 
 		res.json(result);
 	} catch (error) {
-		console.error("Error fetching info:", error);
+		console.error("Error fetching info:", error?.response?.statusText);
 		res.status(500).send(error?.response?.statusText);
 	}
 });
