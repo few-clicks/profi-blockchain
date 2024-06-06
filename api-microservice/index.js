@@ -41,8 +41,21 @@ app.get("/info", async (_, res) => {
 
 		res.json(result);
 	} catch (error) {
-		console.error("Error fetching news:", error);
-		res.status(500).send("Error fetching news");
+		console.error("Error fetching info:", error);
+		res.status(500).send("Error fetching info");
+	}
+});
+
+app.get("/news", async (_, res) => {
+	try {
+		const response = await axios.get(
+			"https://api.coingecko.com/api/v3/news",
+		);
+
+		res.json(response.data);
+	} catch (error) {
+		console.error("Error fetching info:", error);
+		res.status(500).send("Error fetching info");
 	}
 });
 
