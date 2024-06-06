@@ -9,7 +9,7 @@ app.use(cors());
 const API_ENDPOINTS = {
 	crypto: "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=ethereum",
 	capitalization: "https://api.coingecko.com/api/v3/global",
-	chart: "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=30&interval=daily",
+	chart: "https://api.coingecko.com/api/v3/coins/ethereum/market_chart?vs_currency=usd&days=30&interval=daily",
 };
 
 app.get("/info", async (_, res) => {

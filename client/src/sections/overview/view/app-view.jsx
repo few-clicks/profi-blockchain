@@ -8,10 +8,10 @@ import Typography from '@mui/material/Typography';
 import Iconify from 'src/components/iconify';
 
 import AppTasks from '../app-tasks';
+import AppInfoChart from '../app-info-chart';
 import AppNewsUpdate from '../app-news-update';
 import AppOrderTimeline from '../app-order-timeline';
 import AppCurrentVisits from '../app-current-visits';
-import AppWebsiteVisits from '../app-website-visits';
 import AppWidgetSummary from '../app-widget-summary';
 import AppTrafficBySite from '../app-traffic-by-site';
 import AppCurrentSubject from '../app-current-subject';
@@ -99,7 +99,7 @@ export default function AppView() {
         </Grid>
 
         <Grid xs={12}>
-          <AppWebsiteVisits
+          <AppInfoChart
             title="Prices"
             subheader="Ethereum"
             chart={{
@@ -116,7 +116,7 @@ export default function AppView() {
           />
         </Grid>
         <Grid xs={12}>
-          <AppWebsiteVisits
+          <AppInfoChart
             title="Total volume"
             subheader="Ethereum"
             chart={{
@@ -133,7 +133,7 @@ export default function AppView() {
           />
         </Grid>
         <Grid xs={12} md={6} lg={8}>
-          <AppWebsiteVisits
+          <AppInfoChart
             title="Market cap"
             subheader="Ethereum"
             chart={{
