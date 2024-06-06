@@ -1,9 +1,10 @@
 const express = require("express");
 const axios = require("axios");
 require("dotenv").config();
+const cors = require("cors");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+app.use(cors());
 
 const API_ENDPOINTS = {
 	crypto: "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=ethereum",
@@ -32,7 +33,7 @@ app.get("/info", async (_, res) => {
 				acc[key] = {
 					currentPrice: data.at(0)?.current_price,
 					marketCap: data?.at(0)?.market_cap,
-					marketCap: data?.at(0)?.total_volume,
+					totalVolume: data?.at(0)?.total_volume,
 					dailyMax: data?.at(0)?.high_24h,
 					dailyMin: data?.at(0)?.low_24h,
 				};
@@ -43,7 +44,7 @@ app.get("/info", async (_, res) => {
 		res.json(result);
 	} catch (error) {
 		console.error("Error fetching info:", error);
-		res.status(500).send("Error fetching info");
+		res.status(500).send(error?.response?.statusText);
 	}
 });
 
@@ -60,6 +61,7 @@ app.get("/news", async (_, res) => {
 	}
 });
 
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
 	console.log(`Server is running on port ${PORT}`);
 });

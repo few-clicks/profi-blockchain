@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { useState, useEffect } from 'react';
 
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
@@ -19,6 +20,34 @@ import AppConversionRates from '../app-conversion-rates';
 // ----------------------------------------------------------------------
 
 export default function AppView() {
+  const [currentPrice, setCurrentPrice] = useState(0);
+  const [marketCap, setMarketCap] = useState(0);
+  const [totalValume, setTotalValume] = useState(0);
+
+  const [maxPrice, setMaxPrice] = useState(0);
+  const [minPrice, setMinPrice] = useState(0);
+
+  useEffect(() => {
+    fetch('http://localhost:4000/info')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Network response was not ok ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+        setCurrentPrice(data?.crypto?.currentPrice);
+        setMarketCap(data?.crypto?.marketCap);
+        setTotalValume(data?.crypto?.totalVolume);
+        setMaxPrice(data?.crypto?.dailyMax);
+        setMinPrice(data?.crypto?.dailyMin);
+      })
+      .catch((error) => {
+        console.error('There has been a problem with your fetch operation:', error);
+      });
+  }, []);
+
   return (
     <Container maxWidth="xl">
       <Typography variant="h4" sx={{ mb: 5 }}>
@@ -26,40 +55,38 @@ export default function AppView() {
       </Typography>
 
       <Grid container spacing={3}>
-        <Grid xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={4}>
           <AppWidgetSummary
-            title="Weekly Sales"
-            total={714000}
+            title="Current Price"
+            total={Number(currentPrice)}
             color="success"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
           />
         </Grid>
 
-        <Grid xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={4}>
           <AppWidgetSummary
-            title="New Users"
-            total={1352831}
+            title="Market Cap"
+            total={Number(marketCap)}
             color="info"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
           />
         </Grid>
 
-        <Grid xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={4}>
           <AppWidgetSummary
-            title="Item Orders"
-            total={1723315}
+            title="Total Value"
+            total={Number(totalValume)}
             color="warning"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
           />
         </Grid>
 
-        <Grid xs={12} sm={6} md={3}>
-          <AppWidgetSummary
-            title="Bug Reports"
-            total={234}
-            color="error"
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
-          />
+        <Grid xs={6}>
+          <AppWidgetSummary title="Maximum (24h)" total={Number(maxPrice)} color="error" />
+        </Grid>
+        <Grid xs={6}>
+          <AppWidgetSummary title="Minimum (24h)" total={Number(minPrice)} color="error" />
         </Grid>
 
         <Grid xs={12} md={6} lg={8}>
