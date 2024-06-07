@@ -11,6 +11,8 @@ import AppConversionRates from '../components/app-conversion-rates';
 
 // ----------------------------------------------------------------------
 
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
 export default function InfoView() {
   const [currentPrice, setCurrentPrice] = useState(0);
   const [marketCap, setMarketCap] = useState(0);
@@ -27,7 +29,7 @@ export default function InfoView() {
   const [capitalization, setCapitalization] = useState({});
 
   useEffect(() => {
-    fetch('http://localhost:4000/info')
+    fetch(`${apiUrl}/info`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`Network response was not ok ${response.statusText}`);

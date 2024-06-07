@@ -8,11 +8,13 @@ import Post from './components/Post';
 
 // ----------------------------------------------------------------------
 
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
 export default function NewsView() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:4000/news')
+    fetch(`${apiUrl}/news`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`Network response was not ok ${response.statusText}`);
