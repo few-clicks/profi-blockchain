@@ -30,6 +30,11 @@ export default function LoginView() {
     }
   }, []);
 
+  const disconnect = () => {
+    setAccount('');
+    setWeb3(null);
+  };
+
   const handleClick = () => {
     router.push('/dashboard');
   };
@@ -37,7 +42,16 @@ export default function LoginView() {
   return (
     <>
       <h1>MetaMask & React</h1>
-      {account ? <p>Connected account: {account}</p> : <p>Please connect to MetaMask</p>}
+      {account ? (
+        <div>
+          <p>Connected account: {account}</p>
+          <button type="button" onClick={disconnect}>
+            Disconnect
+          </button>
+        </div>
+      ) : (
+        <p>Please connect to MetaMask</p>
+      )}
       <LoadingButton
         fullWidth
         size="large"
