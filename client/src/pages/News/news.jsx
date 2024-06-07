@@ -1,17 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 
-import { NotFoundView } from 'src/sections/error';
+import NewsView from './news-view';
 
 // ----------------------------------------------------------------------
 
-export default function NotFoundPage() {
+export default function NewsPage() {
   return (
     <>
       <Helmet>
-        <title> 404 Page Not Found </title>
+        <title> Dashboard | Minimal UI </title>
       </Helmet>
 
-      <NotFoundView />
+      <NewsView />
     </>
   );
 }

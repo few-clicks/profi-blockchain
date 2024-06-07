@@ -8,9 +8,9 @@ import { posts } from 'src/_mock/blog';
 
 import Iconify from 'src/components/iconify';
 
-import PostCard from '../post-card';
-import PostSort from '../post-sort';
-import PostSearch from '../post-search';
+import PostCard from '../components/post-card';
+import PostSort from '../components/post-sort';
+import PostSearch from '../components/post-search';
 
 // ----------------------------------------------------------------------
 

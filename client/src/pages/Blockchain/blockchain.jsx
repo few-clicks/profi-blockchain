@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 
-import { BlockchainView } from 'src/sections/blockchain/view';
+import BlockchainView from './view/blockchain-view';
 
 // ----------------------------------------------------------------------
 
