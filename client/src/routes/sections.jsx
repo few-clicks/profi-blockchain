@@ -1,5 +1,6 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useContext } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
+import { WalletContext } from 'src/app/WalletContext';
 
 import DashboardLayout from 'src/layouts/dashboard';
 
@@ -12,15 +13,22 @@ export const Page404 = lazy(() => import('src/pages/NotFound'));
 
 // ----------------------------------------------------------------------
 
+const PrivateRoute = ({ children }) => {
+  const { account } = useContext(WalletContext);
+  return account ? children : <Navigate to="/login" />;
+};
+
 export default function Router() {
   const routes = useRoutes([
     {
       element: (
-        <DashboardLayout>
-          <Suspense>
-            <Outlet />
-          </Suspense>
-        </DashboardLayout>
+        <PrivateRoute>
+          <DashboardLayout>
+            <Suspense>
+              <Outlet />
+            </Suspense>
+          </DashboardLayout>
+        </PrivateRoute>
       ),
       children: [
         { element: <ProjectPage />, index: true },
