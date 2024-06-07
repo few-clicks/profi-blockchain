@@ -4,7 +4,11 @@ require("dotenv").config();
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
+
+const corsOptions = {
+	origin: "*",
+};
+app.use(cors(corsOptions));
 
 const API_ENDPOINTS = {
 	crypto: "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=ethereum",
@@ -85,7 +89,7 @@ let newsCache = {
 	data: null,
 	timestamp: null,
 };
-app.get("/news", async (_, res) => {
+app.get("/news", cors(corsOptions), async (_, res) => {
 	try {
 		const currentTime = new Date().getTime();
 		const cacheDuration = 3 * 60 * 1000;
