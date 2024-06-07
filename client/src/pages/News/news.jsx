@@ -1,5 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 
+import NewsView from './news-view';
+
 // ----------------------------------------------------------------------
 
 export default function NewsPage() {
@@ -9,7 +11,7 @@ export default function NewsPage() {
         <title> Dashboard | Minimal UI </title>
       </Helmet>
 
-      <div>News</div>
+      <NewsView />
     </>
   );
 }
