@@ -42,6 +42,8 @@
     }
   },
   "rules": {
+	"react/prop-types": ["error", { "ignore": ["children"] }],
+	"react/jsx-no-constructed-context-values": "off",
     "no-alert": 0,
     "camelcase": 0,
     "no-console": 0,

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
@@ -9,18 +9,31 @@ import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
-import { account } from 'src/_mock/account';
+import { profile } from 'src/_mock/account';
+import { useNavigate } from 'react-router-dom';
+import { WalletContext } from 'src/app/WalletContext';
 
 // ----------------------------------------------------------------------
 
 export default function AccountPopover() {
   const [open, setOpen] = useState(null);
+  const { account, setAccount, setWeb3 } = useContext(WalletContext);
+  const navigate = useNavigate();
+
+  console.log(account);
+
+  const disconnect = () => {
+    setAccount('');
+    setWeb3(null);
+    navigate('/login'); // Redirect to login after disconnect
+  };
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
 
   const handleClose = () => {
+    disconnect();
     setOpen(null);
   };
 
@@ -39,15 +52,15 @@ export default function AccountPopover() {
         }}
       >
         <Avatar
-          src={account.photoURL}
-          alt={account.displayName}
+          src={profile.photoURL}
+          alt={profile.displayName}
           sx={{
             width: 36,
             height: 36,
             border: (theme) => `solid 2px ${theme.palette.background.default}`,
           }}
         >
-          {account.displayName.charAt(0).toUpperCase()}
+          {profile.displayName.charAt(0).toUpperCase()}
         </Avatar>
       </IconButton>
 
@@ -68,10 +81,10 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2 }}>
           <Typography variant="subtitle2" noWrap>
-            {account.displayName}
+            {profile.displayName}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {account.email}
+            {profile.email}
           </Typography>
         </Box>
 

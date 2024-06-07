@@ -1,14 +1,15 @@
 import LoadingButton from '@mui/lab/LoadingButton';
-import { useState } from 'react';
+import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { WalletContext } from 'src/app/WalletContext';
 
 import Web3 from 'web3';
 
 // ----------------------------------------------------------------------
 
 export default function LoginView() {
-  const [account, setAccount] = useState('');
-  const [web3, setWeb3] = useState(null);
-  console.log(web3);
+  const { setAccount, setWeb3 } = useContext(WalletContext);
+  const navigate = useNavigate();
 
   const connectWallet = async () => {
     if (window.ethereum) {
@@ -17,6 +18,7 @@ export default function LoginView() {
         setWeb3(web3Instance);
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         setAccount(accounts[0]);
+        navigate('/');
       } catch (error) {
         console.error('User denied account access');
       }
@@ -25,29 +27,15 @@ export default function LoginView() {
       setWeb3(web3Instance);
       const accounts = await web3Instance.eth.getAccounts();
       setAccount(accounts[0]);
+      navigate('/');
     } else {
       console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
     }
   };
 
-  const disconnect = () => {
-    setAccount('');
-    setWeb3(null);
-  };
-
   return (
     <>
       <h1>MetaMask & React</h1>
-      {account ? (
-        <div>
-          <p>Connected account: {account}</p>
-          <button type="button" onClick={disconnect}>
-            Disconnect
-          </button>
-        </div>
-      ) : (
-        <p>Please connect to MetaMask</p>
-      )}
       <LoadingButton
         fullWidth
         size="large"
