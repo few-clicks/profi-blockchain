@@ -59,7 +59,7 @@ export default function InfoView() {
   return (
     <Container maxWidth="xl">
       <Typography variant="h4" sx={{ mb: 5 }}>
-        Ethereum Analytics
+        Ethereum Analytics (USD)
       </Typography>
 
       <Grid container spacing={3}>
