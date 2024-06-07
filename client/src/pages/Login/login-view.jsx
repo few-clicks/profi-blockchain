@@ -1,5 +1,5 @@
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WalletContext } from 'src/app/WalletContext';
@@ -34,6 +34,23 @@ export default function LoginView() {
     }
   };
 
+  const switchAccount = async () => {
+    if (window.ethereum) {
+      try {
+        const accounts = await window.ethereum.request({
+          method: 'wallet_requestPermissions',
+          params: [{ eth_accounts: {} }],
+        });
+        setAccount(accounts[0].caveats[0].value[0]);
+        navigate('/dashboard'); // Redirect to dashboard after switching account
+      } catch (error) {
+        console.error('User denied account access or switching');
+      }
+    } else {
+      console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+    }
+  };
+
   return (
     <Box
       display="flex"
@@ -41,6 +58,7 @@ export default function LoginView() {
       justifyContent="center"
       alignItems="center"
       minHeight="100vh"
+      gap={1}
       textAlign="center"
     >
       <LoadingButton
@@ -53,6 +71,17 @@ export default function LoginView() {
       >
         Login with MetaMask
       </LoadingButton>
+      <Button
+        fullWidth
+        size="large"
+        variant="outlined"
+        onClick={switchAccount}
+        sx={{
+          maxWidth: 300,
+        }}
+      >
+        Switch Account
+      </Button>
     </Box>
   );
 }
