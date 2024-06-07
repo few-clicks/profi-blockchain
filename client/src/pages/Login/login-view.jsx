@@ -1,4 +1,5 @@
 import LoadingButton from '@mui/lab/LoadingButton';
+import { Box } from '@mui/material';
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WalletContext } from 'src/app/WalletContext';
@@ -34,18 +35,24 @@ export default function LoginView() {
   };
 
   return (
-    <>
-      <h1>MetaMask & React</h1>
+    <Box
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+      textAlign="center"
+    >
       <LoadingButton
         fullWidth
         size="large"
-        type="submit"
         variant="contained"
         color="inherit"
         onClick={connectWallet}
+        sx={{ maxWidth: 300 }}
       >
-        Login
+        Login with MetaMask
       </LoadingButton>
-    </>
+    </Box>
   );
 }
