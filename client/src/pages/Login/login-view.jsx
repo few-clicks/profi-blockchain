@@ -1,42 +1,38 @@
 import LoadingButton from '@mui/lab/LoadingButton';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
-import { useRouter } from 'src/routes/hooks';
 import Web3 from 'web3';
 
 // ----------------------------------------------------------------------
 
 export default function LoginView() {
-  const router = useRouter();
   const [account, setAccount] = useState('');
   const [web3, setWeb3] = useState(null);
   console.log(web3);
 
-  useEffect(() => {
+  const connectWallet = async () => {
     if (window.ethereum) {
-      const web3Instance = new Web3(window.ethereum);
-      setWeb3(web3Instance);
-      window.ethereum.enable().then((accounts) => {
+      try {
+        const web3Instance = new Web3(window.ethereum);
+        setWeb3(web3Instance);
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         setAccount(accounts[0]);
-      });
+      } catch (error) {
+        console.error('User denied account access');
+      }
     } else if (window.web3) {
       const web3Instance = new Web3(window.web3.currentProvider);
       setWeb3(web3Instance);
-      web3Instance.eth.getAccounts().then((accounts) => {
-        setAccount(accounts[0]);
-      });
+      const accounts = await web3Instance.eth.getAccounts();
+      setAccount(accounts[0]);
     } else {
       console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
     }
-  }, []);
+  };
 
   const disconnect = () => {
     setAccount('');
     setWeb3(null);
-  };
-
-  const handleClick = () => {
-    router.push('/dashboard');
   };
 
   return (
@@ -58,7 +54,7 @@ export default function LoginView() {
         type="submit"
         variant="contained"
         color="inherit"
-        onClick={handleClick}
+        onClick={connectWallet}
       >
         Login
       </LoadingButton>
