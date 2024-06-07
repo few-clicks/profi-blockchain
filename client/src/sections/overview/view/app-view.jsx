@@ -32,6 +32,8 @@ export default function AppView() {
   const [marketCaps, setMarketCaps] = useState([]);
   const [totalVolumes, setTotalVolumes] = useState([]);
 
+  const [capitalization, setCapitalization] = useState({});
+
   useEffect(() => {
     fetch('http://localhost:4000/info')
       .then((response) => {
@@ -41,6 +43,7 @@ export default function AppView() {
         return response.json();
       })
       .then((data) => {
+        console.log(data);
         setCurrentPrice(data?.crypto?.currentPrice);
         setMarketCap(data?.crypto?.marketCap);
         setTotalVolume(data?.crypto?.totalVolume);
@@ -51,6 +54,8 @@ export default function AppView() {
         setPrices(data?.prices);
         setMarketCaps(data?.marketCaps);
         setTotalVolumes(data?.totalVolumes);
+
+        setCapitalization(data?.capitalization);
       })
       .catch((error) => {
         console.error('There has been a problem with your fetch operation:', error);
@@ -154,12 +159,13 @@ export default function AppView() {
           <AppCurrentVisits
             title="Current Visits"
             chart={{
-              series: [
-                { label: 'America', value: 4344 },
-                { label: 'Asia', value: 5435 },
-                { label: 'Europe', value: 1443 },
-                { label: 'Africa', value: 4443 },
-              ],
+              series: Object.keys(capitalization)
+                .sort((a, b) => b - a)
+                .slice(0, 3)
+                .map((key) => ({
+                  label: key,
+                  value: capitalization[key],
+                })),
             }}
           />
         </Grid>
@@ -169,18 +175,10 @@ export default function AppView() {
             title="Conversion Rates"
             subheader="(+43%) than last year"
             chart={{
-              series: [
-                { label: 'Italy', value: 400 },
-                { label: 'Japan', value: 430 },
-                { label: 'China', value: 448 },
-                { label: 'Canada', value: 470 },
-                { label: 'France', value: 540 },
-                { label: 'Germany', value: 580 },
-                { label: 'South Korea', value: 690 },
-                { label: 'Netherlands', value: 1100 },
-                { label: 'United States', value: 1200 },
-                { label: 'United Kingdom', value: 1380 },
-              ],
+              series: Object.keys(capitalization).map((key) => ({
+                label: key,
+                value: capitalization[key],
+              })),
             }}
           />
         </Grid>
