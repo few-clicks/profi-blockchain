@@ -4,14 +4,14 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 
-import AppInfoChart from '../app-info-chart';
-import AppCurrentVisits from '../app-current-visits';
-import AppWidgetSummary from '../app-widget-summary';
-import AppConversionRates from '../app-conversion-rates';
+import AppInfoChart from '../components/app-info-chart';
+import AppCurrentVisits from '../components/app-current-visits';
+import AppWidgetSummary from '../components/app-widget-summary';
+import AppConversionRates from '../components/app-conversion-rates';
 
 // ----------------------------------------------------------------------
 
-export default function AppView() {
+export default function InfoView() {
   const [currentPrice, setCurrentPrice] = useState(0);
   const [marketCap, setMarketCap] = useState(0);
   const [totalVolume, setTotalVolume] = useState(0);
@@ -57,7 +57,7 @@ export default function AppView() {
   return (
     <Container maxWidth="xl">
       <Typography variant="h4" sx={{ mb: 5 }}>
-        Hi, Welcome back 👋
+        Ethereum Analytics
       </Typography>
 
       <Grid container spacing={3}>
@@ -66,7 +66,7 @@ export default function AppView() {
             title="Current Price"
             total={Number(currentPrice)}
             color="success"
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
+            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
           />
         </Grid>
 
@@ -75,7 +75,7 @@ export default function AppView() {
             title="Market Cap"
             total={Number(marketCap)}
             color="info"
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
+            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
           />
         </Grid>
 
@@ -174,19 +174,6 @@ export default function AppView() {
             }}
           />
         </Grid>
-
-        {/* <Grid xs={12} md={6} lg={8}>
-          <AppNewsUpdate
-            title="News Update"
-            list={[...Array(5)].map((_, index) => ({
-              id: faker.string.uuid(),
-              title: faker.person.jobTitle(),
-              description: faker.commerce.productDescription(),
-              image: `/assets/images/covers/cover_${index + 1}.jpg`,
-              postedAt: faker.date.recent(),
-            }))}
-          />
-        </Grid> */}
       </Grid>
     </Container>
   );

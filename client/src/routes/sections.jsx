@@ -3,11 +3,12 @@ import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import DashboardLayout from 'src/layouts/dashboard';
 
-export const IndexPage = lazy(() => import('src/pages/app'));
-export const LoginPage = lazy(() => import('src/pages/login'));
-export const BlockchainPage = lazy(() => import('src/pages/blockchain'));
-export const ProjectPage = lazy(() => import('src/pages/project'));
-export const Page404 = lazy(() => import('src/pages/page-not-found'));
+export const InfoPage = lazy(() => import('src/pages/Info'));
+export const LoginPage = lazy(() => import('src/pages/Login'));
+export const NewsPage = lazy(() => import('src/pages/News'));
+export const BlockchainPage = lazy(() => import('src/pages/Blockchain'));
+export const ProjectPage = lazy(() => import('src/pages/Project'));
+export const Page404 = lazy(() => import('src/pages/NotFound'));
 
 // ----------------------------------------------------------------------
 
@@ -22,8 +23,9 @@ export default function Router() {
         </DashboardLayout>
       ),
       children: [
-        { element: <IndexPage />, index: true },
-        { path: 'project', element: <ProjectPage /> },
+        { element: <ProjectPage />, index: true },
+        { path: 'news', element: <NewsPage /> },
+        { path: 'info', element: <InfoPage /> },
         { path: 'blockchain', element: <BlockchainPage /> },
       ],
     },

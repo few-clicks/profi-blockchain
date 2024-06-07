@@ -1,17 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 
-import { LoginView } from 'src/sections/login';
+import BlockchainView from './view/blockchain-view';
 
 // ----------------------------------------------------------------------
 
-export default function LoginPage() {
+export default function Blockchain() {
   return (
     <>
       <Helmet>
-        <title> Login | Minimal UI </title>
+        <title> Blockchain </title>
       </Helmet>
 
-      <LoginView />
+      <BlockchainView />
     </>
   );
 }
