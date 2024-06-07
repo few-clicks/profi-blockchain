@@ -42,7 +42,7 @@ export default function LoginView() {
           params: [{ eth_accounts: {} }],
         });
         setAccount(accounts[0].caveats[0].value[0]);
-        navigate('/dashboard'); // Redirect to dashboard after switching account
+        navigate('/'); // Redirect to dashboard after switching account
       } catch (error) {
         console.error('User denied account access or switching');
       }

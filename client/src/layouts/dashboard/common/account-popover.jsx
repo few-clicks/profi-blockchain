@@ -12,6 +12,7 @@ import IconButton from '@mui/material/IconButton';
 import { profile } from 'src/_mock/account';
 import { useNavigate } from 'react-router-dom';
 import { WalletContext } from 'src/app/WalletContext';
+import { shortenAddress } from 'src/utils/format-address';
 
 // ----------------------------------------------------------------------
 
@@ -80,10 +81,10 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2 }}>
           <Typography variant="subtitle2" noWrap>
-            {profile.displayName}
+            {shortenAddress(account)}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {profile.email}
+            address
           </Typography>
         </Box>
 
