@@ -15,16 +15,11 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    alias: [
-      {
-        find: /^~(.+)/,
-        replacement: path.join(process.cwd(), 'node_modules/$1'),
-      },
-      {
-        find: /^src(.+)/,
-        replacement: path.join(process.cwd(), 'src/$1'),
-      },
-    ],
+    alias: {
+      '~': path.join(process.cwd(), 'node_modules'),
+      src: path.join(process.cwd(), 'src'),
+      '@contracts': path.resolve(__dirname, '../smart-contract/build/contracts'),
+    },
   },
   server: {
     port: 3030,

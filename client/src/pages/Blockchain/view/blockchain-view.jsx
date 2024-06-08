@@ -8,8 +8,11 @@ import Typography from '@mui/material/Typography';
 
 import { WalletContext } from 'src/app/WalletContext';
 import { posts } from 'src/_mock/blog';
-import employmentContractJSON from 'src/contracts/EmploymentContract.json';
-import employmentContractFactoryJSON from 'src/contracts/EmploymentContractFactory.json';
+
+/* eslint-disable import/no-extraneous-dependencies */
+import employmentContractJSON from '@contracts/EmploymentContract.json';
+import employmentContractFactoryJSON from '@contracts/EmploymentContractFactory.json';
+/* eslint-enable import/no-extraneous-dependencies */
 
 import Iconify from 'src/components/iconify';
 
