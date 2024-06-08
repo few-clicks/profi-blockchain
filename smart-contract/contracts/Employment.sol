@@ -80,6 +80,13 @@ contract EmploymentContract {
         require(!isSigned, "Contract already signed");
         require(block.timestamp >= startDate, "Contract start date has not been reached");
         employee = _employee;
+        payable(reserve).transfer(penalty);
+    }
+
+    function confirmEmployeeSignature() public payable onlyEmployee {
+        require(isSigned, "Contract must be signed by employer first");
+        require(msg.value == penalty, "Employee must send the penalty amount");
+
         isSigned = true;
         payable(reserve).transfer(penalty);
     }
@@ -99,9 +106,17 @@ contract EmploymentContract {
     /// @notice Функция для расторжения контракта
     function terminateContract() public isContractSigned {
         require(block.timestamp < endDate, "Contract has already ended");
-        require(address(this).balance >= penalty, "Insufficient contract balance");
 
-        payable(employee).transfer(penalty);
+        if (msg.sender == employer) {
+            require(address(this).balance >= penalty, "Insufficient contract balance");
+            payable(employee).transfer(penalty);
+        } else if (msg.sender == employee) {
+            require(address(this).balance >= penalty, "Insufficient contract balance");
+            payable(employer).transfer(penalty);
+        } else {
+            revert("Only employer or employee can terminate the contract");
+        }
+
         isSigned = false;
     }
 
