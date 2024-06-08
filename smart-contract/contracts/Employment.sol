@@ -6,17 +6,20 @@ contract EmploymentContract {
     address public employer;       // Адрес работодателя
     address public employee;       // Адрес сотрудника
 
-    uint256 public monthlySalary;  // Месячная зарплата
+    uint256 public salary;         // Месячная зарплата
     uint256 public bonus;          // Бонус
     uint256 public vacationPay;    // Оплата отпуска
     uint256 public sickLeavePay;   // Оплата больничного
     uint256 public penalty;        // Штраф за расторжение контракта
 
-    uint256 public startDate;      // Дата начала контракта
-    uint256 public endDate;        // Дата окончания контракта
+    uint256 public startDate;       // Дата начала контракта
+    uint256 public endDate;         // Дата окончания контракта
     uint256 public lastPaymentDate; // Дата последней выплаты
+    uint256 public paymentInterval; // Интервал платежей
 
     bool public isSigned = false;  // Статус подписания контракта
+
+    address public reserve;        // Резервное хранилище для штрафа
 
     /// @dev Модификатор для проверки, что действие выполняет только работодатель
     modifier onlyEmployer() {
@@ -38,7 +41,7 @@ contract EmploymentContract {
 
     /// @notice Конструктор контракта
     /// @param _employer Адрес работодателя
-    /// @param _monthlySalary Месячная зарплата
+    /// @param _salary Месячная зарплата
     /// @param _bonus Бонус
     /// @param _vacationPay Оплата отпуска
     /// @param _sickLeavePay Оплата больничного
@@ -47,23 +50,27 @@ contract EmploymentContract {
     /// @param _penalty Штраф за расторжение контракта
     constructor(
         address _employer,
-        uint256 _monthlySalary,
+        uint256 _salary,
         uint256 _bonus,
         uint256 _vacationPay,
         uint256 _sickLeavePay,
         uint256 _startDate,
         uint256 _endDate,
-        uint256 _penalty
+        uint256 _penalty,
+        uint256 _paymentInterval,
+        address _reserve
     ) {
         require(_startDate < _endDate, "Start date must be before end date");
         employer = _employer;
-        monthlySalary = _monthlySalary;
+        salary = _salary;
         bonus = _bonus;
         vacationPay = _vacationPay;
         sickLeavePay = _sickLeavePay;
         startDate = _startDate;
         endDate = _endDate;
         penalty = _penalty;
+        paymentInterval = _paymentInterval;
+        reserve = _reserve;
         lastPaymentDate = block.timestamp; // Контракт начинается при развертывании
     }
 
@@ -74,22 +81,23 @@ contract EmploymentContract {
         require(block.timestamp >= startDate, "Contract start date has not been reached");
         employee = _employee;
         isSigned = true;
+        payable(reserve).transfer(penalty);
     }
 
     /// @notice Функция для еженедельной выплаты зарплаты
-    function makeWeeklyPayment() public onlyEmployer isContractSigned {
-        require(block.timestamp >= lastPaymentDate + 1 weeks, "Weekly payment interval has not passed");
+    function makePayment() public onlyEmployer isContractSigned {
+        require(block.timestamp >= lastPaymentDate + paymentInterval, "Payment interval has not passed");
         require(block.timestamp < endDate, "Contract has ended");
 
-        uint256 weeklySalary = (monthlySalary * 12) / 52;
-        require(address(this).balance >= weeklySalary, "Insufficient contract balance");
+        uint256 paymentAmount = (salary * 12) / (365 days / paymentInterval);
+        require(address(this).balance >= paymentAmount, "Insufficient contract balance");
 
-        lastPaymentDate += 1 weeks;
-        payable(employee).transfer(weeklySalary);
+        lastPaymentDate += paymentInterval;
+        payable(employee).transfer(paymentAmount);
     }
 
     /// @notice Функция для расторжения контракта
-    function terminateContract() public onlyEmployer isContractSigned {
+    function terminateContract() public isContractSigned {
         require(block.timestamp < endDate, "Contract has already ended");
         require(address(this).balance >= penalty, "Insufficient contract balance");
 
@@ -121,7 +129,7 @@ contract EmploymentContractFactory {
     event ContractCreated(address contractAddress, address employer);
 
     /// @notice Функция для создания нового контракта
-    /// @param _monthlySalary Месячная зарплата
+    /// @param _salary Месячная зарплата
     /// @param _bonus Бонус
     /// @param _vacationPay Оплата отпуска
     /// @param _sickLeavePay Оплата больничного
@@ -129,23 +137,27 @@ contract EmploymentContractFactory {
     /// @param _endDate Дата окончания контракта
     /// @param _penalty Штраф за расторжение контракта
     function createEmploymentContract(
-        uint256 _monthlySalary,
+        uint256 _salary,
         uint256 _bonus,
         uint256 _vacationPay,
         uint256 _sickLeavePay,
         uint256 _startDate,
         uint256 _endDate,
-        uint256 _penalty
+        uint256 _penalty,
+        uint256 _paymentInterval,
+        address _reserve
     ) public {
         EmploymentContract newContract = new EmploymentContract(
             msg.sender,
-            _monthlySalary,
+            _salary,
             _bonus,
             _vacationPay,
             _sickLeavePay,
             _startDate,
             _endDate,
-            _penalty
+            _penalty,
+            _paymentInterval,
+            _reserve
         );
         employmentContracts.push(newContract);
         emit ContractCreated(address(newContract), msg.sender);
