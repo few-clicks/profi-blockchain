@@ -17,6 +17,21 @@ contract EmploymentContract {
     uint256 public lastPaymentDate; // Last payment date
     uint256 public paymentInterval; // Payment interval
 
+    struct Details {
+        address employer;
+        address employee;
+        uint256 salary;
+        uint256 bonus;
+        uint256 vacationPay;
+        uint256 sickLeavePay;
+        uint256 startDate;
+        uint256 endDate;
+        uint256 lastPaymentDate;
+        uint256 paymentInterval;
+        bool isSigned;
+        address reserve;
+    }
+
     bool public isSigned = false;  // Contract signed status
 
     address public reserve;        // Reserve storage for penalty
@@ -126,6 +141,24 @@ contract EmploymentContract {
         isSigned = false;
     }
 
+    // Function to return the contract's details
+    function getDetails() public view returns (Details memory) {
+        return Details({
+            employer: employer,
+            employee: employee,
+            salary: salary,
+            bonus: bonus,
+            vacationPay: vacationPay,
+            sickLeavePay: sickLeavePay,
+            startDate: startDate,
+            endDate: endDate,
+            lastPaymentDate: lastPaymentDate,
+            paymentInterval: paymentInterval,
+            isSigned: isSigned,
+            reserve: reserve
+        });
+    }
+
     /// @notice Function to fund the contract
     function fundContract() public payable onlyEmployer {
         // The employer can fund the contract by sending funds to the contract address.
@@ -201,5 +234,15 @@ contract EmploymentContractFactory {
     /// @return Array of contracts
     function getContracts() public view returns (EmploymentContract[] memory) {
         return employmentContracts;
+    }
+
+    function getContractsDetails() public view returns (EmploymentContract.Details[] memory) {
+        EmploymentContract.Details[] memory contractsDetails = new EmploymentContract.Details[](employmentContracts.length);
+
+        for (uint256 i = 0; i < employmentContracts.length; i++) {
+            contractsDetails[i] = employmentContracts[i].getDetails();
+        }
+
+        return contractsDetails;
     }
 }
