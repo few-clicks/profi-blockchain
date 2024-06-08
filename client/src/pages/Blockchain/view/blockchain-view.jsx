@@ -55,7 +55,7 @@ export default function BlockchainView() {
 
     console.log('was created', res, account);
 
-    const contracts = await contract.methods.getContracts().call();
+    const contracts = await contract.methods.getContractsDetails().call();
     console.log('contracts', contracts);
   };
 
