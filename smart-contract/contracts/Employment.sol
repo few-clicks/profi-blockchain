@@ -63,6 +63,9 @@ contract EmploymentContract {
         address _reserve
     ) {
         require(_startDate < _endDate, "Start date must be before end date");
+        require(_employer != address(0), "Employer address cannot be zero");
+        require(_reserve != address(0), "Reserve address cannot be zero");
+
         employer = _employer;
         salary = _salary;
         bonus = _bonus;
@@ -81,6 +84,7 @@ contract EmploymentContract {
     function signContract(address _employee) public onlyEmployer {
         require(!isSigned, "Contract already signed");
         require(block.timestamp >= startDate, "Contract start date has not been reached");
+        require(_employee != address(0), "Employee address cannot be zero");
         employee = _employee;
         isSigned = true;
     }
