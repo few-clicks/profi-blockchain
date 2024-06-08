@@ -3,53 +3,53 @@ pragma solidity ^0.8.0;
 /// @title Employment Contract
 /// @notice This contract manages the employment relationship between an employer and an employee.
 contract EmploymentContract {
-    address public employer;       // Адрес работодателя
-    address public employee;       // Адрес сотрудника
+    address public employer;       // Employer's address
+    address public employee;       // Employee's address
 
-    uint256 public salary;         // Месячная зарплата
-    uint256 public bonus;          // Бонус
-    uint256 public vacationPay;    // Оплата отпуска
-    uint256 public sickLeavePay;   // Оплата больничного
-    uint256 public penalty;        // Штраф за расторжение контракта
+    uint256 public salary;         // Monthly salary
+    uint256 public bonus;          // Bonus
+    uint256 public vacationPay;    // Vacation pay
+    uint256 public sickLeavePay;   // Sick leave pay
+    uint256 public penalty;        // Penalty for contract termination
 
-    uint256 public startDate;       // Дата начала контракта
-    uint256 public endDate;         // Дата окончания контракта
-    uint256 public lastPaymentDate; // Дата последней выплаты
-    uint256 public paymentInterval; // Интервал платежей
+    uint256 public startDate;       // Contract start date
+    uint256 public endDate;         // Contract end date
+    uint256 public lastPaymentDate; // Last payment date
+    uint256 public paymentInterval; // Payment interval
 
-    bool public isSigned = false;  // Статус подписания контракта
+    bool public isSigned = false;  // Contract signed status
 
-    address public reserve;        // Резервное хранилище для штрафа
+    address public reserve;        // Reserve storage for penalty
 
     event ContractFunded(address indexed from, uint256 amount);
 
-    /// @dev Модификатор для проверки, что действие выполняет только работодатель
+    /// @dev Modifier to check that the action is performed only by the employer
     modifier onlyEmployer() {
         require(msg.sender == employer, "Only employer can perform this action");
         _;
     }
 
-    /// @dev Модификатор для проверки, что действие выполняет только сотрудник
+    /// @dev Modifier to check that the action is performed only by the employee
     modifier onlyEmployee() {
         require(msg.sender == employee, "Only employee can perform this action");
         _;
     }
 
-    /// @dev Модификатор для проверки, что контракт подписан
+    /// @dev Modifier to check that the contract is signed
     modifier isContractSigned() {
         require(isSigned == true, "Contract is not signed by employee yet");
         _;
     }
 
-    /// @notice Конструктор контракта
-    /// @param _employer Адрес работодателя
-    /// @param _salary Месячная зарплата
-    /// @param _bonus Бонус
-    /// @param _vacationPay Оплата отпуска
-    /// @param _sickLeavePay Оплата больничного
-    /// @param _startDate Дата начала контракта
-    /// @param _endDate Дата окончания контракта
-    /// @param _penalty Штраф за расторжение контракта
+    /// @notice Contract constructor
+    /// @param _employer Employer's address
+    /// @param _salary Monthly salary
+    /// @param _bonus Bonus
+    /// @param _vacationPay Vacation pay
+    /// @param _sickLeavePay Sick leave pay
+    /// @param _startDate Contract start date
+    /// @param _endDate Contract end date
+    /// @param _penalty Penalty for contract termination
     constructor(
         address _employer,
         uint256 _salary,
@@ -73,27 +73,27 @@ contract EmploymentContract {
         penalty = _penalty;
         paymentInterval = _paymentInterval;
         reserve = _reserve;
-        lastPaymentDate = block.timestamp; // Контракт начинается при развертывании
+        lastPaymentDate = block.timestamp; // Contract starts upon deployment
     }
 
-    /// @notice Функция для подписания контракта сотрудником
-    /// @param _employee Адрес сотрудника
+    /// @notice Function for the employee to sign the contract
+    /// @param _employee Employee's address
     function signContract(address _employee) public onlyEmployer {
         require(!isSigned, "Contract already signed");
         require(block.timestamp >= startDate, "Contract start date has not been reached");
         employee = _employee;
-        payable(reserve).transfer(penalty);
+        isSigned = true;
     }
 
+    /// @notice Function for the employee to confirm their signature
     function confirmEmployeeSignature() public payable onlyEmployee {
         require(isSigned, "Contract must be signed by employer first");
         require(msg.value == penalty, "Employee must send the penalty amount");
 
-        isSigned = true;
         payable(reserve).transfer(penalty);
     }
 
-    /// @notice Функция для еженедельной выплаты зарплаты
+    /// @notice Function for weekly salary payment
     function makePayment() public onlyEmployer isContractSigned {
         require(block.timestamp >= lastPaymentDate + paymentInterval, "Payment interval has not passed");
         require(block.timestamp < endDate, "Contract has ended");
@@ -105,7 +105,7 @@ contract EmploymentContract {
         payable(employee).transfer(paymentAmount);
     }
 
-    /// @notice Функция для расторжения контракта
+    /// @notice Function to terminate the contract
     function terminateContract() public isContractSigned {
         require(block.timestamp < endDate, "Contract has already ended");
 
@@ -122,28 +122,28 @@ contract EmploymentContract {
         isSigned = false;
     }
 
-    /// @notice Функция для пополнения контракта
+    /// @notice Function to fund the contract
     function fundContract() public payable onlyEmployer {
-        // Работодатель может пополнить контракт, отправив средства на адрес контракта.
-        // Эти средства будут использованы для выплат заработной платы и других выплат сотруднику.
+        // The employer can fund the contract by sending funds to the contract address.
+        // These funds will be used for salary payments and other payments to the employee.
         require(msg.value > 0, "Must send some ether to fund the contract");
 
-        // Логируем пополнение контракта
+        // Log the contract funding
         emit ContractFunded(msg.sender, msg.value);
     }
 
-    /// @notice Функция для получения средств контрактом
+    /// @notice Function to receive funds by the contract
     receive() external payable {
-    	// Эта функция вызывается, когда контракт получает средства без данных.
-     	// Например, при простом переводе ETH на адрес контракта.
-      	// Средства будут зачислены на баланс контракта и могут быть использованы для выплат.
+        // This function is called when the contract receives funds without data.
+        // For example, when simply transferring ETH to the contract address.
+        // The funds will be credited to the contract balance and can be used for payments.
     }
 
-    /// @notice Функция для обработки некорректных вызовов
+    /// @notice Function to handle incorrect calls
     fallback() external payable {
-	    // Эта функция вызывается, когда контракт получает средства с данными
-	    // или когда вызывается функция, которая не существует в контракте.
-	    // Средства будут зачислены на баланс контракта и могут быть использованы для выплат.
+        // This function is called when the contract receives funds with data
+        // or when a function that does not exist in the contract is called.
+        // The funds will be credited to the contract balance and can be used for payments.
     }
 }
 
@@ -151,21 +151,21 @@ contract EmploymentContract {
 /// @notice This contract allows the creation of EmploymentContract instances.
 contract EmploymentContractFactory {
 
-    EmploymentContract[] public employmentContracts; // Массив контрактов
+    EmploymentContract[] public employmentContracts; // Array of contracts
 
-    /// @notice Событие создания контракта
-    /// @param contractAddress Адрес созданного контракта
-    /// @param employer Адрес работодателя
+    /// @notice Event for contract creation
+    /// @param contractAddress Address of the created contract
+    /// @param employer Employer's address
     event ContractCreated(address contractAddress, address employer);
 
-    /// @notice Функция для создания нового контракта
-    /// @param _salary Месячная зарплата
-    /// @param _bonus Бонус
-    /// @param _vacationPay Оплата отпуска
-    /// @param _sickLeavePay Оплата больничного
-    /// @param _startDate Дата начала контракта
-    /// @param _endDate Дата окончания контракта
-    /// @param _penalty Штраф за расторжение контракта
+    /// @notice Function to create a new contract
+    /// @param _salary Monthly salary
+    /// @param _bonus Bonus
+    /// @param _vacationPay Vacation pay
+    /// @param _sickLeavePay Sick leave pay
+    /// @param _startDate Contract start date
+    /// @param _endDate Contract end date
+    /// @param _penalty Penalty for contract termination
     function createEmploymentContract(
         uint256 _salary,
         uint256 _bonus,
@@ -193,8 +193,8 @@ contract EmploymentContractFactory {
         emit ContractCreated(address(newContract), msg.sender);
     }
 
-    /// @notice Функция для получения всех созданных контрактов
-    /// @return Массив контрактов
+    /// @notice Function to get all created contracts
+    /// @return Array of contracts
     function getContracts() public view returns (EmploymentContract[] memory) {
         return employmentContracts;
     }
