@@ -21,6 +21,8 @@ contract EmploymentContract {
 
     address public reserve;        // Резервное хранилище для штрафа
 
+    event ContractFunded(address indexed from, uint256 amount);
+
     /// @dev Модификатор для проверки, что действие выполняет только работодатель
     modifier onlyEmployer() {
         require(msg.sender == employer, "Only employer can perform this action");
@@ -122,14 +124,27 @@ contract EmploymentContract {
 
     /// @notice Функция для пополнения контракта
     function fundContract() public payable onlyEmployer {
-        // Функция для пополнения контракта
+        // Работодатель может пополнить контракт, отправив средства на адрес контракта.
+        // Эти средства будут использованы для выплат заработной платы и других выплат сотруднику.
+        require(msg.value > 0, "Must send some ether to fund the contract");
+
+        // Логируем пополнение контракта
+        emit ContractFunded(msg.sender, msg.value);
     }
 
     /// @notice Функция для получения средств контрактом
-    receive() external payable {}
+    receive() external payable {
+    	// Эта функция вызывается, когда контракт получает средства без данных.
+     	// Например, при простом переводе ETH на адрес контракта.
+      	// Средства будут зачислены на баланс контракта и могут быть использованы для выплат.
+    }
 
     /// @notice Функция для обработки некорректных вызовов
-    fallback() external payable {}
+    fallback() external payable {
+	    // Эта функция вызывается, когда контракт получает средства с данными
+	    // или когда вызывается функция, которая не существует в контракте.
+	    // Средства будут зачислены на баланс контракта и могут быть использованы для выплат.
+    }
 }
 
 /// @title Employment Contract Factory
