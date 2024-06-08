@@ -66,6 +66,9 @@ async function main() {
 	const employmentContractAddress = contracts.at(-1);
 	console.log("Employment Contract Address:", employmentContractAddress);
 
+	const contractDetails = await factory.getContractsDetails();
+	console.log("contract details", contractDetails);
+
 	const employmentContract = await EmploymentContract.at(
 		employmentContractAddress,
 	);
