@@ -1,3 +1,5 @@
+import { useEffect, useContext } from 'react';
+
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
@@ -6,6 +8,7 @@ import Typography from '@mui/material/Typography';
 
 import Web3 from 'web3';
 
+import { WalletContext } from 'src/app/WalletContext';
 import { posts } from 'src/_mock/blog';
 import employmentContractJSON from 'src/contracts/EmploymentContract.json';
 import employmentContractFactoryJSON from 'src/contracts/EmploymentContractFactory.json';
@@ -33,9 +36,35 @@ console.log('contract factory abi', CONTRACT_FACTORY_ABI);
 console.log('privider', Web3.givenProvider);
 const web3 = new Web3(Web3.givenProvider || 'http://localhost:7545');
 const contract = new web3.eth.Contract(CONTRACT_FACTORY_ABI, CONTRACT_FACTORY_ADDRESS);
-console.log('contract', contract);
 
 export default function BlockchainView() {
+  const { account } = useContext(WalletContext);
+
+  const test = async () => {
+    const res = await contract.methods
+      .createEmploymentContract(
+        web3.utils.toWei('10000000', 'ether'), // salary
+        web3.utils.toWei('0.1', 'ether'), // bonus
+        web3.utils.toWei('0.05', 'ether'), // vacationPay
+        web3.utils.toWei('0.02', 'ether'), // sickLeavePay
+        Math.floor(Date.now() / 1000), // startDate
+        Math.floor(Date.now() / 1000) + 4 * 60, // endDate
+        web3.utils.toWei('0.5', 'ether'), // penalty
+        10, // paymentInterval
+        '0x977C25AB464BADeB2552F0A0cC7A9d86749aFA73' // reserve address
+      )
+      .send({ from: account, gas: 5000000, gasPrice: web3.utils.toWei('10', 'gwei') });
+
+    console.log('was created', res, account);
+
+    const contracts = await contract.methods.getContracts().call();
+    console.log('contracts', contracts);
+  };
+
+  useEffect(() => {
+    test().catch(console.error);
+  });
+
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
