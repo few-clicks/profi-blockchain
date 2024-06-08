@@ -41,6 +41,7 @@ contract EmploymentContract {
         uint256 _endDate,
         uint256 _penalty
     ) {
+        require(_startDate < _endDate, "Start date must be before end date");
         employer = _employer;
         monthlySalary = _monthlySalary;
         bonus = _bonus;
@@ -54,6 +55,7 @@ contract EmploymentContract {
 
     function signContract(address _employee) public onlyEmployer {
         require(!isSigned, "Contract already signed");
+        require(block.timestamp >= startDate, "Contract start date has not been reached");
         employee = _employee;
         isSigned = true;
     }
@@ -62,15 +64,23 @@ contract EmploymentContract {
         require(block.timestamp >= lastPaymentDate + 1 weeks, "Weekly payment interval has not passed");
         require(block.timestamp < endDate, "Contract has ended");
 
-        uint256 weeklySalary = monthlySalary / 4;
+        uint256 weeklySalary = (monthlySalary * 12) / 52;
+        require(address(this).balance >= weeklySalary, "Insufficient contract balance");
+
         lastPaymentDate += 1 weeks;
         payable(employee).transfer(weeklySalary);
     }
 
     function terminateContract() public onlyEmployer isContractSigned {
         require(block.timestamp < endDate, "Contract has already ended");
+        require(address(this).balance >= penalty, "Insufficient contract balance");
+
         payable(employee).transfer(penalty);
         isSigned = false;
+    }
+
+    function fundContract() public payable onlyEmployer {
+        // Function to fund the contract
     }
 
     receive() external payable {}
