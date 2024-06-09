@@ -1,4 +1,5 @@
 import { useEffect, useContext, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -46,6 +47,8 @@ export default function BlockchainView() {
   const [contracts, setContracts] = useState();
   const [modalOpen, setModalOpen] = useState(false);
 
+  const navigate = useNavigate();
+
   const handleOpen = () => {
     setModalOpen(true);
   };
@@ -55,22 +58,23 @@ export default function BlockchainView() {
   };
 
   const smartContract = useMemo(
-    () => new web3.eth.Contract(CONTRACT_FACTORY_ABI, CONTRACT_FACTORY_ADDRESS),
+    () => web3 && new web3.eth.Contract(CONTRACT_FACTORY_ABI, CONTRACT_FACTORY_ADDRESS),
     [web3]
   );
 
   useEffect(() => {
     const fetchContracts = async () => {
       try {
-        const contractsDetails = await smartContract.methods.getContractsDetails().call();
+        const contractsDetails = await smartContract?.methods.getContractsDetails().call();
         setContracts(contractsDetails);
       } catch (error) {
         console.error('Error fetching contracts:', error);
+        navigate('/login');
       }
     };
 
     fetchContracts();
-  }, [smartContract]);
+  }, [smartContract, navigate]);
 
   return (
     <>
