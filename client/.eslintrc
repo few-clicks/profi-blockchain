@@ -31,6 +31,10 @@
           [
             "src",
             "./src"
+          ],
+          [
+            "@contracts",
+            "../smart-contract/build/contracts"
           ]
         ],
         "extensions": [
@@ -42,7 +46,8 @@
     }
   },
   "rules": {
-	"react/prop-types": ["error", { "ignore": ["children"] }],
+    "react/prop-types": "off",
+    'import/extensions': 'off',
 	"react/jsx-no-constructed-context-values": "off",
     "no-alert": 0,
     "camelcase": 0,
@@ -73,15 +78,6 @@
         "varsIgnorePattern": "^_",
         "args": "after-used",
         "argsIgnorePattern": "^_"
-      }
-    ],
-    // perfectionist
-    // https://eslint-plugin-perfectionist.azat.io/
-    "perfectionist/sort-named-imports": [
-      1,
-      {
-        "order": "asc",
-        "type": "line-length"
       }
     ],
   }
