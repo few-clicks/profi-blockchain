@@ -1,7 +1,8 @@
 import { Box, Button, Modal, TextField } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { WalletContext } from 'src/app/WalletContext';
 
 const style = {
   position: 'absolute',
@@ -15,7 +16,8 @@ const style = {
   borderRadius: '20px',
 };
 
-const CreateObjectModal = ({ open, handleClose }) => {
+const CreateObjectModal = ({ open, handleClose, smartContract }) => {
+  const { account, web3 } = useContext(WalletContext);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -24,6 +26,7 @@ const CreateObjectModal = ({ open, handleClose }) => {
     endDate: null,
     paymentInterval: '',
     penalty: '',
+    reserve: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -47,6 +50,7 @@ const CreateObjectModal = ({ open, handleClose }) => {
     const tempErrors = {};
     tempErrors.title = formData.title ? '' : 'Title is required';
     tempErrors.description = formData.description ? '' : 'Description is required';
+    tempErrors.reserve = formData.reserve ? '' : 'Reserve is required';
     tempErrors.salary =
       formData.salary && !Number.isNaN(Number(formData.salary)) ? '' : 'Valid salary is required';
     tempErrors.startDate = formData.startDate ? '' : 'Start date is required';
@@ -61,14 +65,32 @@ const CreateObjectModal = ({ open, handleClose }) => {
     return Object.values(tempErrors).every((x) => x === '');
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validate()) {
-      const transformedData = {
-        ...formData,
-        salary: parseFloat(formData.salary),
-        penalty: parseFloat(formData.penalty),
-      };
-      console.log('Submitted Data:', transformedData);
+      const res = await smartContract.methods
+        .createEmploymentContract(
+          web3.utils.toWei(String(formData.salary), 'ether'), // salary
+          web3.utils.toWei('0.1', 'ether'), // bonus
+          web3.utils.toWei('0.05', 'ether'), // vacationPay
+          web3.utils.toWei('0.02', 'ether'), // sickLeavePay
+          Math.floor(formData.startDate.unix()), // startDate
+          Math.floor(formData.endDate.unix()), // endDate
+          web3.utils.toWei(String(formData.penalty), 'ether'), // penalty
+          formData.paymentInterval,
+          formData.reserve // reserve address
+        )
+        .send({ from: account, gas: 5000000, gasPrice: web3.utils.toWei('10', 'gwei') });
+      console.log(res, account);
+      setFormData({
+        title: '',
+        description: '',
+        salary: '',
+        startDate: null,
+        endDate: null,
+        paymentInterval: '',
+        penalty: '',
+        reserve: '',
+      });
       handleClose();
     }
   };
@@ -114,7 +136,7 @@ const CreateObjectModal = ({ open, handleClose }) => {
           type="number"
         />
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
             <DatePicker
               label="Start Date"
               value={formData.startDate}
@@ -133,27 +155,39 @@ const CreateObjectModal = ({ open, handleClose }) => {
             />
           </Box>
         </LocalizationProvider>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+          <TextField
+            label="Payment Interval"
+            name="paymentInterval"
+            value={formData.paymentInterval}
+            onChange={handleChange}
+            error={!!errors.paymentInterval}
+            helperText={errors.paymentInterval}
+            fullWidth
+            margin="normal"
+            type="number"
+          />
+          <TextField
+            label="Penalty"
+            name="penalty"
+            value={formData.penalty}
+            onChange={handleChange}
+            error={!!errors.penalty}
+            helperText={errors.penalty}
+            fullWidth
+            margin="normal"
+            type="number"
+          />
+        </Box>
         <TextField
-          label="Payment Interval"
-          name="paymentInterval"
-          value={formData.paymentInterval}
+          label="Reserve address"
+          name="reserve"
+          value={formData.reserve}
           onChange={handleChange}
-          error={!!errors.paymentInterval}
-          helperText={errors.paymentInterval}
+          error={!!errors.reserve}
+          helperText={errors.reserve}
           fullWidth
           margin="normal"
-          type="number"
-        />
-        <TextField
-          label="Penalty"
-          name="penalty"
-          value={formData.penalty}
-          onChange={handleChange}
-          error={!!errors.penalty}
-          helperText={errors.penalty}
-          fullWidth
-          margin="normal"
-          type="number"
         />
         <Button variant="contained" color="primary" onClick={handleSubmit}>
           Submit

@@ -110,7 +110,7 @@ export default function BlockchainView() {
             ))}
         </Grid>
       </Container>
-      <CreateObjectModal open={modalOpen} handleClose={handleClose} />
+      <CreateObjectModal open={modalOpen} handleClose={handleClose} smartContract={smartContract} />
     </>
   );
 }
