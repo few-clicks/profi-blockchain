@@ -16,7 +16,7 @@ const style = {
   borderRadius: '20px',
 };
 
-const CreateObjectModal = ({ open, handleClose, smartContract, setRerender }) => {
+const CreateObjectModal = ({ open, handleClose, contractFactory, setRerender }) => {
   const { account, web3 } = useContext(WalletContext);
   const [formData, setFormData] = useState({
     title: '',
@@ -67,7 +67,7 @@ const CreateObjectModal = ({ open, handleClose, smartContract, setRerender }) =>
 
   const handleSubmit = async () => {
     if (validate()) {
-      const res = await smartContract.methods
+      const res = await contractFactory.methods
         .createEmploymentContract(
           web3.utils.toWei(String(formData.salary), 'ether'), // salary
           web3.utils.toWei('0.1', 'ether'), // bonus

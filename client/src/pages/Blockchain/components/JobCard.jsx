@@ -12,11 +12,15 @@ const JobCard = ({
   endDate,
   employer,
   employee,
+  handleSignOpen,
+  contractAddress,
+  setCurrentContractAddress,
 }) => {
   const { account } = useContext(WalletContext);
 
   const handleSign = () => {
-    console.log('Подписать');
+    setCurrentContractAddress(contractAddress);
+    handleSignOpen(true);
   };
 
   const handleConfirm = () => {

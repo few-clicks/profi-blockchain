@@ -10,7 +10,6 @@ import Typography from '@mui/material/Typography';
 import { WalletContext } from 'src/app/WalletContext';
 
 /* eslint-disable import/no-extraneous-dependencies */
-import employmentContractJSON from '@contracts/EmploymentContract.json';
 import employmentContractFactoryJSON from '@contracts/EmploymentContractFactory.json';
 /* eslint-enable import/no-extraneous-dependencies */
 
@@ -19,20 +18,15 @@ import Iconify from 'src/components/iconify';
 import PostSearch from '../components/post-search';
 import JobCard from '../components/JobCard';
 import CreateObjectModal from '../components/CreateContractModal';
+import SignObjectModal from '../components/SignContractModal';
 
 // ----------------------------------------------------------------------
-
-const CONTRACT_ADDRESS = employmentContractJSON.networks;
-const CONTRACT_ABI = employmentContractJSON.abi;
 
 const CONTRACT_FACTORY_ADDRESS = employmentContractFactoryJSON.networks['5777'].address;
 const CONTRACT_FACTORY_ABI = employmentContractFactoryJSON.abi;
 
-console.log('smartContract address', CONTRACT_ADDRESS);
-console.log('smartContract abi', CONTRACT_ABI);
-
-console.log('smartContract factory address', CONTRACT_FACTORY_ADDRESS);
-console.log('smartContract factory abi', CONTRACT_FACTORY_ABI);
+console.log('contractFactory factory address', CONTRACT_FACTORY_ADDRESS);
+console.log('contractFactory factory abi', CONTRACT_FACTORY_ABI);
 
 function formatDate(inputDate) {
   const day = String(inputDate.getDate()).padStart(2, '0');
@@ -45,21 +39,28 @@ function formatDate(inputDate) {
 export default function BlockchainView() {
   const { web3 } = useContext(WalletContext);
   const [rerender, setRerender] = useState(false);
-  console.log('RERENDER', rerender);
   const [contracts, setContracts] = useState();
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalCreateOpen, setModalCreateOpen] = useState(false);
+  const [modalSignOpen, setModalSignOpen] = useState(false);
+  const [currentContractAddress, setCurrentContractAddress] = useState('');
 
   const navigate = useNavigate();
 
-  const handleOpen = () => {
-    setModalOpen(true);
+  const handleCreateOpen = () => {
+    setModalCreateOpen(true);
+  };
+  const handleSignOpen = () => {
+    setModalSignOpen(true);
   };
 
-  const handleClose = () => {
-    setModalOpen(false);
+  const handleCreateClose = () => {
+    setModalCreateOpen(false);
+  };
+  const handleSignClose = () => {
+    setModalSignOpen(false);
   };
 
-  const smartContract = useMemo(
+  const contractFactory = useMemo(
     () => web3 && new web3.eth.Contract(CONTRACT_FACTORY_ABI, CONTRACT_FACTORY_ADDRESS),
     [web3]
   );
@@ -67,7 +68,7 @@ export default function BlockchainView() {
   useEffect(() => {
     const fetchContracts = async () => {
       try {
-        const contractsDetails = await smartContract?.methods.getContractsDetails().call();
+        const contractsDetails = await contractFactory?.methods.getContractsDetails().call();
         setContracts(contractsDetails);
       } catch (error) {
         console.error('Error fetching contracts:', error);
@@ -76,7 +77,7 @@ export default function BlockchainView() {
     };
 
     fetchContracts();
-  }, [smartContract, navigate, rerender]);
+  }, [contractFactory, navigate, rerender]);
 
   return (
     <>
@@ -85,7 +86,7 @@ export default function BlockchainView() {
           <Typography variant="h4">Blockchain</Typography>
 
           <Button
-            onClick={handleOpen}
+            onClick={handleCreateOpen}
             variant="contained"
             color="inherit"
             startIcon={<Iconify icon="eva:plus-fill" />}
@@ -111,15 +112,24 @@ export default function BlockchainView() {
                   endDate={formatDate(new Date(Number(contract.endDate) * 1000))}
                   employee={contract.employee}
                   employer={contract.employer}
+                  handleSignOpen={handleSignOpen}
+                  contractAddress={contract.contractAddress}
+                  setCurrentContractAddress={setCurrentContractAddress}
                 />
               </Grid>
             ))}
         </Grid>
       </Container>
       <CreateObjectModal
-        open={modalOpen}
-        handleClose={handleClose}
-        smartContract={smartContract}
+        open={modalCreateOpen}
+        handleClose={handleCreateClose}
+        contractFactory={contractFactory}
+        setRerender={setRerender}
+      />
+      <SignObjectModal
+        contractAddress={currentContractAddress}
+        open={modalSignOpen}
+        handleClose={handleSignClose}
         setRerender={setRerender}
       />
     </>

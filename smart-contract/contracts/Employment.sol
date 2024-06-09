@@ -18,6 +18,7 @@ contract EmploymentContract {
     uint256 public paymentInterval; // Payment interval
 
     struct Details {
+        address contractAddress;
         address employer;
         address employee;
         uint256 salary;
@@ -144,6 +145,7 @@ contract EmploymentContract {
     // Function to return the contract's details
     function getDetails() public view returns (Details memory) {
         return Details({
+            contractAddress: address(this),
             employer: employer,
             employee: employee,
             salary: salary,
@@ -234,6 +236,18 @@ contract EmploymentContractFactory {
     /// @return Array of contracts
     function getContracts() public view returns (EmploymentContract[] memory) {
         return employmentContracts;
+    }
+
+    /// @notice Function to get details of a specific contract by address
+    /// @param contractAddress Address of the contract
+    /// @return Contract details
+    function getContractDetailByAddress(address contractAddress) public view returns (EmploymentContract.Details memory) {
+        for (uint256 i = 0; i < employmentContracts.length; i++) {
+            if (address(employmentContracts[i]) == contractAddress) {
+                return employmentContracts[i].getDetails();
+            }
+        }
+        revert("Contract not found");
     }
 
     function getContractsDetails() public view returns (EmploymentContract.Details[] memory) {
