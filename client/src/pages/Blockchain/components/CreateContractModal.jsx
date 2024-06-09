@@ -16,7 +16,7 @@ const style = {
   borderRadius: '20px',
 };
 
-const CreateObjectModal = ({ open, handleClose, smartContract }) => {
+const CreateObjectModal = ({ open, handleClose, smartContract, setRerender }) => {
   const { account, web3 } = useContext(WalletContext);
   const [formData, setFormData] = useState({
     title: '',
@@ -91,6 +91,8 @@ const CreateObjectModal = ({ open, handleClose, smartContract }) => {
         penalty: '',
         reserve: '',
       });
+      console.log('rerender true');
+      setRerender(true);
       handleClose();
     }
   };

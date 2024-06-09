@@ -44,6 +44,8 @@ function formatDate(inputDate) {
 
 export default function BlockchainView() {
   const { web3 } = useContext(WalletContext);
+  const [rerender, setRerender] = useState(false);
+  console.log('RERENDER', rerender);
   const [contracts, setContracts] = useState();
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -74,7 +76,7 @@ export default function BlockchainView() {
     };
 
     fetchContracts();
-  }, [smartContract, navigate]);
+  }, [smartContract, navigate, rerender]);
 
   return (
     <>
@@ -114,7 +116,12 @@ export default function BlockchainView() {
             ))}
         </Grid>
       </Container>
-      <CreateObjectModal open={modalOpen} handleClose={handleClose} smartContract={smartContract} />
+      <CreateObjectModal
+        open={modalOpen}
+        handleClose={handleClose}
+        smartContract={smartContract}
+        setRerender={setRerender}
+      />
     </>
   );
 }
