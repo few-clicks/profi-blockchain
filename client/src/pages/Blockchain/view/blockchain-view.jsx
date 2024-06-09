@@ -17,6 +17,7 @@ import Iconify from 'src/components/iconify';
 
 import PostSearch from '../components/post-search';
 import JobCard from '../components/JobCard';
+import CreateObjectModal from '../components/CreateContractModal';
 
 // ----------------------------------------------------------------------
 
@@ -43,6 +44,15 @@ function formatDate(inputDate) {
 export default function BlockchainView() {
   const { web3 } = useContext(WalletContext);
   const [contracts, setContracts] = useState();
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleOpen = () => {
+    setModalOpen(true);
+  };
+
+  const handleClose = () => {
+    setModalOpen(false);
+  };
 
   const smartContract = useMemo(
     () => new web3.eth.Contract(CONTRACT_FACTORY_ABI, CONTRACT_FACTORY_ADDRESS),
@@ -63,36 +73,44 @@ export default function BlockchainView() {
   }, [smartContract]);
 
   return (
-    <Container>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Blockchain</Typography>
+    <>
+      <Container>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+          <Typography variant="h4">Blockchain</Typography>
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
-          New Contract
-        </Button>
-      </Stack>
+          <Button
+            onClick={handleOpen}
+            variant="contained"
+            color="inherit"
+            startIcon={<Iconify icon="eva:plus-fill" />}
+          >
+            New Contract
+          </Button>
+        </Stack>
 
-      <Stack mb={5} direction="row" alignItems="center" justifyContent="space-between">
-        <PostSearch posts={[]} />
-      </Stack>
+        <Stack mb={5} direction="row" alignItems="center" justifyContent="space-between">
+          <PostSearch posts={[]} />
+        </Stack>
 
-      <Grid container spacing={2}>
-        {contracts &&
-          contracts.map((contract, index) => (
-            <Grid xs={12} md={6} lg={4} key={index}>
-              <JobCard
-                title={contract.title}
-                description={contract.description}
-                salary={Number(contract.salary) / 1e18}
-                isSigned={contract.isSigned}
-                startDate={formatDate(new Date(Number(contract.startDate) * 1000))}
-                endDate={formatDate(new Date(Number(contract.endDate) * 1000))}
-                employee={contract.employee}
-                employer={contract.employer}
-              />
-            </Grid>
-          ))}
-      </Grid>
-    </Container>
+        <Grid container spacing={2}>
+          {contracts &&
+            contracts.map((contract, index) => (
+              <Grid xs={12} md={6} lg={4} key={index}>
+                <JobCard
+                  title={contract.title}
+                  description={contract.description}
+                  salary={Number(contract.salary) / 1e18}
+                  isSigned={contract.isSigned}
+                  startDate={formatDate(new Date(Number(contract.startDate) * 1000))}
+                  endDate={formatDate(new Date(Number(contract.endDate) * 1000))}
+                  employee={contract.employee}
+                  employer={contract.employer}
+                />
+              </Grid>
+            ))}
+        </Grid>
+      </Container>
+      <CreateObjectModal open={modalOpen} handleClose={handleClose} />
+    </>
   );
 }
