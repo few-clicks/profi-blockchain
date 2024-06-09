@@ -1,8 +1,20 @@
-import React from 'react';
 import { Card, Grid, Button, Typography, CardContent, Box } from '@mui/material';
 import { FaUserPlus, FaCheckCircle, FaExclamationTriangle, FaDollarSign } from 'react-icons/fa';
+import { WalletContext } from 'src/app/WalletContext';
+import { useContext } from 'react';
 
-const JobCard = ({ title = 'Title', description, salary, isSigned, date }) => {
+const JobCard = ({
+  title = 'Title',
+  description = 'Default description',
+  salary,
+  isSigned,
+  startDate,
+  endDate,
+  employer,
+  employee,
+}) => {
+  const { account } = useContext(WalletContext);
+
   const handleSign = () => {
     console.log('Подписать');
   };
@@ -63,7 +75,7 @@ const JobCard = ({ title = 'Title', description, salary, isSigned, date }) => {
           color="text.secondary"
           style={{ marginTop: '10px', wordBreak: 'break-word' }}
         >
-          Date: {date}
+          {`${startDate} \u2192 ${endDate}`}
         </Typography>
         <Box display="flex" alignItems="center" style={{ marginTop: '10px' }}>
           <FaCheckCircle color={isSigned ? 'green' : 'red'} />
@@ -77,10 +89,10 @@ const JobCard = ({ title = 'Title', description, salary, isSigned, date }) => {
           <Button
             fullWidth
             variant="contained"
-            style={getButtonStyles(isSigned)}
-            startIcon={<FaUserPlus style={getIconStyles(isSigned)} />}
+            style={getButtonStyles(isSigned || account !== employer)}
+            startIcon={<FaUserPlus style={getIconStyles(isSigned || account !== employer)} />}
             onClick={handleSign}
-            disabled={isSigned} // Блокируем кнопку, если контракт уже подписан
+            disabled={isSigned || account !== employer}
           >
             Sign
           </Button>
@@ -89,10 +101,10 @@ const JobCard = ({ title = 'Title', description, salary, isSigned, date }) => {
           <Button
             fullWidth
             variant="contained"
-            style={getButtonStyles(!isSigned)}
-            startIcon={<FaCheckCircle style={getIconStyles(!isSigned)} />}
+            style={getButtonStyles(!isSigned || account !== employee)}
+            startIcon={<FaCheckCircle style={getIconStyles(!isSigned || account !== employee)} />}
             onClick={handleConfirm}
-            disabled={!isSigned} // Блокируем кнопку, если контракт не подписан
+            disabled={!isSigned || account !== employee}
           >
             Confirm
           </Button>
@@ -101,10 +113,10 @@ const JobCard = ({ title = 'Title', description, salary, isSigned, date }) => {
           <Button
             fullWidth
             variant="contained"
-            style={getButtonStyles(!isSigned)}
-            startIcon={<FaDollarSign style={getIconStyles(!isSigned)} />}
+            style={getButtonStyles(!isSigned || account !== employer)}
+            startIcon={<FaDollarSign style={getIconStyles(!isSigned || account !== employer)} />}
             onClick={handlePay}
-            disabled={!isSigned} // Блокируем кнопку, если контракт не подписан
+            disabled={!isSigned || account !== employer}
           >
             Pay
           </Button>
@@ -114,10 +126,12 @@ const JobCard = ({ title = 'Title', description, salary, isSigned, date }) => {
             fullWidth
             variant="contained"
             color="error"
-            style={getReportButtonStyles(!isSigned)}
-            startIcon={<FaExclamationTriangle style={getIconStyles(!isSigned)} />}
+            style={getReportButtonStyles(!isSigned || account !== employee)}
+            startIcon={
+              <FaExclamationTriangle style={getIconStyles(!isSigned || account !== employee)} />
+            }
             onClick={handleReport}
-            disabled={!isSigned} // Блокируем кнопку, если контракт не подписан
+            disabled={!isSigned || account !== employee}
           >
             Report
           </Button>

@@ -15,7 +15,6 @@ import employmentContractFactoryJSON from '@contracts/EmploymentContractFactory.
 
 import Iconify from 'src/components/iconify';
 
-import PostSort from '../components/post-sort';
 import PostSearch from '../components/post-search';
 import JobCard from '../components/JobCard';
 
@@ -33,28 +32,17 @@ console.log('smartContract abi', CONTRACT_ABI);
 console.log('smartContract factory address', CONTRACT_FACTORY_ADDRESS);
 console.log('smartContract factory abi', CONTRACT_FACTORY_ABI);
 
-const test = [
-  {
-    title: 'Frontend Developer',
-    description: 'Разработка и поддержка пользовательского интерфейса веб-приложений.',
-    salary: 0.8,
-    isSigned: true,
-    date: '2024-06-01',
-  },
-  {
-    title: 'Backend Developer',
-    description: 'Создание и поддержка серверной логики и баз данных.',
-    salary: 1.2,
-    isSigned: false,
-    date: '2024-06-05',
-  },
-];
+function formatDate(inputDate) {
+  const day = String(inputDate.getDate()).padStart(2, '0');
+  const month = String(inputDate.getMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0, поэтому нужно прибавить 1
+  const year = inputDate.getFullYear();
+
+  return `${day}.${month}.${year}`;
+}
 
 export default function BlockchainView() {
-  const { account, web3 } = useContext(WalletContext);
+  const { web3 } = useContext(WalletContext);
   const [contracts, setContracts] = useState();
-
-  console.log(account);
 
   const smartContract = useMemo(
     () => new web3.eth.Contract(CONTRACT_FACTORY_ABI, CONTRACT_FACTORY_ADDRESS),
@@ -86,25 +74,21 @@ export default function BlockchainView() {
 
       <Stack mb={5} direction="row" alignItems="center" justifyContent="space-between">
         <PostSearch posts={[]} />
-        <PostSort
-          options={[
-            { value: 'latest', label: 'Latest' },
-            { value: 'popular', label: 'Popular' },
-            { value: 'oldest', label: 'Oldest' },
-          ]}
-        />
       </Stack>
 
       <Grid container spacing={2}>
         {contracts &&
-          test.map((contract, index) => (
-            <Grid item xs={12} md={6} lg={4} key={index}>
+          contracts.map((contract, index) => (
+            <Grid xs={12} md={6} lg={4} key={index}>
               <JobCard
                 title={contract.title}
                 description={contract.description}
-                salary={contract.salary}
+                salary={Number(contract.salary) / 1e18}
                 isSigned={contract.isSigned}
-                date={contract.date}
+                startDate={formatDate(new Date(Number(contract.startDate) * 1000))}
+                endDate={formatDate(new Date(Number(contract.endDate) * 1000))}
+                employee={contract.employee}
+                employer={contract.employer}
               />
             </Grid>
           ))}
