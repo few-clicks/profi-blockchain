@@ -1,4 +1,4 @@
-import { useEffect, useContext } from 'react';
+import { useEffect, useContext, useState, useMemo } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -7,7 +7,6 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 
 import { WalletContext } from 'src/app/WalletContext';
-import { posts } from 'src/_mock/blog';
 
 /* eslint-disable import/no-extraneous-dependencies */
 import employmentContractJSON from '@contracts/EmploymentContract.json';
@@ -16,9 +15,9 @@ import employmentContractFactoryJSON from '@contracts/EmploymentContractFactory.
 
 import Iconify from 'src/components/iconify';
 
-import PostCard from '../components/post-card';
 import PostSort from '../components/post-sort';
 import PostSearch from '../components/post-search';
+import JobCard from '../components/JobCard';
 
 // ----------------------------------------------------------------------
 
@@ -28,40 +27,52 @@ const CONTRACT_ABI = employmentContractJSON.abi;
 const CONTRACT_FACTORY_ADDRESS = employmentContractFactoryJSON.networks['5777'].address;
 const CONTRACT_FACTORY_ABI = employmentContractFactoryJSON.abi;
 
-console.log('contract address', CONTRACT_ADDRESS);
-console.log('contract abi', CONTRACT_ABI);
+console.log('smartContract address', CONTRACT_ADDRESS);
+console.log('smartContract abi', CONTRACT_ABI);
 
-console.log('contract factory address', CONTRACT_FACTORY_ADDRESS);
-console.log('contract factory abi', CONTRACT_FACTORY_ABI);
+console.log('smartContract factory address', CONTRACT_FACTORY_ADDRESS);
+console.log('smartContract factory abi', CONTRACT_FACTORY_ABI);
+
+const test = [
+  {
+    title: 'Frontend Developer',
+    description: 'Разработка и поддержка пользовательского интерфейса веб-приложений.',
+    salary: 0.8,
+    isSigned: true,
+    date: '2024-06-01',
+  },
+  {
+    title: 'Backend Developer',
+    description: 'Создание и поддержка серверной логики и баз данных.',
+    salary: 1.2,
+    isSigned: false,
+    date: '2024-06-05',
+  },
+];
 
 export default function BlockchainView() {
   const { account, web3 } = useContext(WalletContext);
+  const [contracts, setContracts] = useState();
 
-  const contract = new web3.eth.Contract(CONTRACT_FACTORY_ABI, CONTRACT_FACTORY_ADDRESS);
+  console.log(account);
 
-  const test = async () => {
-    const res = await contract.methods.createEmploymentContract(
-      web3.utils.toWei('10000000', 'ether'), // salary
-      web3.utils.toWei('0.1', 'ether'), // bonus
-      web3.utils.toWei('0.05', 'ether'), // vacationPay
-      web3.utils.toWei('0.02', 'ether'), // sickLeavePay
-      Math.floor(Date.now() / 1000), // startDate
-      Math.floor(Date.now() / 1000) + 4 * 60, // endDate
-      web3.utils.toWei('0.5', 'ether'), // penalty
-      10, // paymentInterval
-      '0x977C25AB464BADeB2552F0A0cC7A9d86749aFA73' // reserve address
-    );
-    // .send({ from: account, gas: 5000000, gasPrice: web3.utils.toWei('10', 'gwei') });
-
-    console.log('was created', res, account);
-
-    const contracts = await contract.methods.getContractsDetails().call();
-    console.log('contracts', contracts);
-  };
+  const smartContract = useMemo(
+    () => new web3.eth.Contract(CONTRACT_FACTORY_ABI, CONTRACT_FACTORY_ADDRESS),
+    [web3]
+  );
 
   useEffect(() => {
-    test().catch(console.error);
-  });
+    const fetchContracts = async () => {
+      try {
+        const contractsDetails = await smartContract.methods.getContractsDetails().call();
+        setContracts(contractsDetails);
+      } catch (error) {
+        console.error('Error fetching contracts:', error);
+      }
+    };
+
+    fetchContracts();
+  }, [smartContract]);
 
   return (
     <Container>
@@ -69,12 +80,12 @@ export default function BlockchainView() {
         <Typography variant="h4">Blockchain</Typography>
 
         <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
-          New Card
+          New Contract
         </Button>
       </Stack>
 
       <Stack mb={5} direction="row" alignItems="center" justifyContent="space-between">
-        <PostSearch posts={posts} />
+        <PostSearch posts={[]} />
         <PostSort
           options={[
             { value: 'latest', label: 'Latest' },
@@ -84,10 +95,19 @@ export default function BlockchainView() {
         />
       </Stack>
 
-      <Grid container spacing={3}>
-        {posts.map((post, index) => (
-          <PostCard key={post.id} post={post} index={index} />
-        ))}
+      <Grid container spacing={2}>
+        {contracts &&
+          test.map((contract, index) => (
+            <Grid item xs={12} md={6} lg={4} key={index}>
+              <JobCard
+                title={contract.title}
+                description={contract.description}
+                salary={contract.salary}
+                isSigned={contract.isSigned}
+                date={contract.date}
+              />
+            </Grid>
+          ))}
       </Grid>
     </Container>
   );
