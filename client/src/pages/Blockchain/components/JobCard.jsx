@@ -89,10 +89,14 @@ const JobCard = ({
           <Button
             fullWidth
             variant="contained"
-            style={getButtonStyles(isSigned || account !== employer)}
-            startIcon={<FaUserPlus style={getIconStyles(isSigned || account !== employer)} />}
+            style={getButtonStyles(isSigned || account.toLowerCase() !== employer.toLowerCase())}
+            startIcon={
+              <FaUserPlus
+                style={getIconStyles(isSigned || account.toLowerCase() !== employer.toLowerCase())}
+              />
+            }
             onClick={handleSign}
-            disabled={isSigned || account !== employer}
+            disabled={isSigned || account.toLowerCase() !== employer.toLowerCase()}
           >
             Sign
           </Button>
@@ -101,10 +105,14 @@ const JobCard = ({
           <Button
             fullWidth
             variant="contained"
-            style={getButtonStyles(!isSigned || account !== employee)}
-            startIcon={<FaCheckCircle style={getIconStyles(!isSigned || account !== employee)} />}
+            style={getButtonStyles(!isSigned || account.toLowerCase() !== employee.toLowerCase())}
+            startIcon={
+              <FaCheckCircle
+                style={getIconStyles(!isSigned || account.toLowerCase() !== employee.toLowerCase())}
+              />
+            }
             onClick={handleConfirm}
-            disabled={!isSigned || account !== employee}
+            disabled={!isSigned || account.toLowerCase() !== employee.toLowerCase()}
           >
             Confirm
           </Button>
@@ -113,10 +121,14 @@ const JobCard = ({
           <Button
             fullWidth
             variant="contained"
-            style={getButtonStyles(!isSigned || account !== employer)}
-            startIcon={<FaDollarSign style={getIconStyles(!isSigned || account !== employer)} />}
+            style={getButtonStyles(!isSigned || account.toLowerCase() !== employer.toLowerCase())}
+            startIcon={
+              <FaDollarSign
+                style={getIconStyles(!isSigned || account.toLowerCase() !== employer.toLowerCase())}
+              />
+            }
             onClick={handlePay}
-            disabled={!isSigned || account !== employer}
+            disabled={!isSigned || account.toLowerCase() !== employer.toLowerCase()}
           >
             Pay
           </Button>
@@ -126,12 +138,16 @@ const JobCard = ({
             fullWidth
             variant="contained"
             color="error"
-            style={getReportButtonStyles(!isSigned || account !== employee)}
+            style={getReportButtonStyles(
+              !isSigned || account.toLowerCase() !== employee.toLowerCase()
+            )}
             startIcon={
-              <FaExclamationTriangle style={getIconStyles(!isSigned || account !== employee)} />
+              <FaExclamationTriangle
+                style={getIconStyles(!isSigned || account.toLowerCase() !== employee.toLowerCase())}
+              />
             }
             onClick={handleReport}
-            disabled={!isSigned || account !== employee}
+            disabled={!isSigned || account.toLowerCase() !== employee.toLowerCase()}
           >
             Report
           </Button>
