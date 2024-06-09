@@ -124,12 +124,14 @@ export default function BlockchainView() {
         open={modalCreateOpen}
         handleClose={handleCreateClose}
         contractFactory={contractFactory}
+        rerender={rerender}
         setRerender={setRerender}
       />
       <SignObjectModal
         contractAddress={currentContractAddress}
         open={modalSignOpen}
         handleClose={handleSignClose}
+        rerender={rerender}
         setRerender={setRerender}
       />
     </>

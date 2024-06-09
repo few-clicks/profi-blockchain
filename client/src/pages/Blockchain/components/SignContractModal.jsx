@@ -20,7 +20,7 @@ const style = {
 
 const CONTRACT_ABI = employmentContractJSON.abi;
 
-const SignObjectModal = ({ open, handleClose, setRerender, contractAddress }) => {
+const SignObjectModal = ({ open, handleClose, rerender, setRerender, contractAddress }) => {
   const { account, web3 } = useContext(WalletContext);
   console.log(account, web3);
   const [address, setAddress] = useState('');
@@ -44,7 +44,7 @@ const SignObjectModal = ({ open, handleClose, setRerender, contractAddress }) =>
         .signContract(address)
         .send({ from: account, gas: 1000000, gasPrice: web3.utils.toWei('10', 'gwei') });
       setAddress('');
-      setRerender(true);
+      setRerender(!rerender);
       handleClose();
     }
   };
