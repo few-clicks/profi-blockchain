@@ -1,6 +1,18 @@
 version: "3.8"
 
 services:
+    ganache:
+        image: trufflesuite/ganache-cli
+        ports:
+            - "7545:7545"
+        command: ganache-cli -h 0.0.0.0
+
+    app:
+        build: smart-contract
+        depends_on:
+            - ganache
+        command: ["truffle", "migrate", "--network", "development"]
+
     couchdb:
         image: couchdb:latest
         container_name: couchdb
