@@ -44,6 +44,8 @@ export default function BlockchainView() {
   const [modalSignOpen, setModalSignOpen] = useState(false);
   const [currentContractAddress, setCurrentContractAddress] = useState('');
 
+  console.log(contracts);
+
   const navigate = useNavigate();
 
   const handleCreateOpen = () => {
@@ -108,6 +110,7 @@ export default function BlockchainView() {
                   description={contract.description}
                   salary={Number(contract.salary) / 1e18}
                   isSigned={contract.isSigned}
+                  penalty={Number(contract.penalty) / 1e18}
                   startDate={formatDate(new Date(Number(contract.startDate) * 1000))}
                   endDate={formatDate(new Date(Number(contract.endDate) * 1000))}
                   employee={contract.employee}

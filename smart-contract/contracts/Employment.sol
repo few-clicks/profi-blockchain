@@ -23,6 +23,7 @@ contract EmploymentContract {
         address employee;
         uint256 salary;
         uint256 bonus;
+        uint256 penalty;
         uint256 vacationPay;
         uint256 sickLeavePay;
         uint256 startDate;
@@ -157,7 +158,8 @@ contract EmploymentContract {
             lastPaymentDate: lastPaymentDate,
             paymentInterval: paymentInterval,
             isSigned: isSigned,
-            reserve: reserve
+            reserve: reserve,
+            penalty: penalty
         });
     }
 

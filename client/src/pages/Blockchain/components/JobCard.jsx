@@ -10,6 +10,12 @@ import {
 import { WalletContext } from 'src/app/WalletContext';
 import { useContext } from 'react';
 
+/* eslint-disable import/no-extraneous-dependencies */
+import employmentContractJSON from '@contracts/EmploymentContract.json';
+/* eslint-enable import/no-extraneous-dependencies */
+
+const CONTRACT_ABI = employmentContractJSON.abi;
+
 const JobCard = ({
   title = 'Title',
   description = 'Default description',
@@ -19,19 +25,26 @@ const JobCard = ({
   endDate,
   employer,
   employee,
+  penalty,
   handleSignOpen,
   contractAddress,
   setCurrentContractAddress,
 }) => {
-  const { account } = useContext(WalletContext);
+  const { account, web3 } = useContext(WalletContext);
 
   const handleSign = () => {
     setCurrentContractAddress(contractAddress);
     handleSignOpen(true);
   };
 
-  const handleConfirm = () => {
-    console.log('Подтвердить');
+  const handleConfirm = async () => {
+    const smartContract = new web3.eth.Contract(CONTRACT_ABI, contractAddress);
+    await smartContract.methods.confirmEmployeeSignature().send({
+      from: account,
+      gas: 1000000,
+      gasPrice: web3.utils.toWei('10', 'gwei'),
+      value: web3.utils.toWei(String(penalty), 'ether'),
+    });
   };
 
   const handlePay = () => {
