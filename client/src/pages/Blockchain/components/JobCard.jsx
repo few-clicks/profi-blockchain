@@ -18,6 +18,7 @@ const CONTRACT_ABI = employmentContractJSON.abi;
 
 const JobCard = ({ contract, handleSignOpen, setCurrentContract, rerender, setRerender }) => {
   const { account, web3 } = useContext(WalletContext);
+  const smartContract = new web3.eth.Contract(CONTRACT_ABI, contract.contractAddress);
 
   const handleSign = () => {
     setCurrentContract(contract);
@@ -25,7 +26,6 @@ const JobCard = ({ contract, handleSignOpen, setCurrentContract, rerender, setRe
   };
 
   const handleConfirm = async () => {
-    const smartContract = new web3.eth.Contract(CONTRACT_ABI, contract.contractAddress);
     await smartContract.methods.confirmEmployeeSignature().send({
       from: account,
       gas: 1000000,
@@ -43,8 +43,15 @@ const JobCard = ({ contract, handleSignOpen, setCurrentContract, rerender, setRe
     console.log('Репорт');
   };
 
-  const handleTopUp = () => {
+  const handleTopUp = async () => {
     console.log('Пополнить');
+    await smartContract.methods.fundContract().send({
+      from: account,
+      gas: 1000000,
+      gasPrice: web3.utils.toWei('10', 'gwei'),
+      value: web3.utils.toWei('5', 'ether'),
+    });
+    setRerender(!rerender);
   };
 
   const handleTerminate = () => {
