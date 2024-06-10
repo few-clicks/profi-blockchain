@@ -11,4 +11,4 @@ COPY . .
 
 RUN truffle compile
 
-CMD ["truffle", "migrate", "--network", "development"]
+CMD ["truffle", "migrate", "--network", "testnet"]
