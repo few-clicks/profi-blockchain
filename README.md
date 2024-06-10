@@ -17,3 +17,23 @@ This project is a decentralized application (DApp) designed for creating and man
 4. [Smart Contract](./smart-contract/README.md)
 
 Each of these folders contains its own README file, which provides detailed functionality and usage instructions for the respective component.
+
+## UI
+
+#### Project page
+
+![project]("./assets/project.png")
+
+#### Info page
+
+![info1]("./assets/info1.png")
+![info2]("./assets/info2.png")
+
+#### News page
+
+![news]("./assets/news.png")
+
+#### Blockchain page
+
+![blockchain]("./assets/blockchain.png")
+![blockchain-create]("./assets/blockchain-create.png")
