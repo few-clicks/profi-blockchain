@@ -22,7 +22,7 @@ Each of these folders contains its own README file, which provides detailed func
 
 #### Login page
 
-![login](./assets/login.png)
+![login](./assets/login.jpg)
 
 
 #### Project page
