@@ -32,13 +32,10 @@ contract EmploymentContract {
         uint256 paymentInterval;
         bool isSigned;
         bool isConfirmed;
-        address reserve;
     }
 
     bool public isSigned = false;  // Contract signed status
     bool public isConfirmed = false; // Contract confirmed status
-
-    address public reserve;        // Reserve storage for penalty
 
     event ContractFunded(address indexed from, uint256 amount);
     event PenaltyDeposited(address indexed from, uint256 amount);
@@ -80,12 +77,10 @@ contract EmploymentContract {
         uint256 _startDate,
         uint256 _endDate,
         uint256 _penalty,
-        uint256 _paymentInterval,
-        address _reserve
+        uint256 _paymentInterval
     ) {
         require(_startDate < _endDate, "Start date must be before end date");
         require(_employer != address(0), "Employer address cannot be zero");
-        require(_reserve != address(0), "Reserve address cannot be zero");
 
         employer = _employer;
         salary = _salary;
@@ -96,7 +91,6 @@ contract EmploymentContract {
         endDate = _endDate;
         penalty = _penalty;
         paymentInterval = _paymentInterval;
-        reserve = _reserve;
         lastPaymentDate = block.timestamp; // Contract starts upon deployment
     }
 
@@ -110,7 +104,6 @@ contract EmploymentContract {
         employee = _employee;
         isSigned = true;
 
-        payable(reserve).transfer(penalty);
         emit PenaltyDeposited(msg.sender, penalty);
     }
 
@@ -119,7 +112,6 @@ contract EmploymentContract {
         require(isSigned, "Contract must be signed by employer first");
         require(msg.value == penalty, "Employee must send the penalty amount");
 
-        payable(reserve).transfer(penalty);
         isConfirmed = true;
         emit PenaltyDeposited(msg.sender, penalty);
         emit ContractConfirmed(msg.sender);
@@ -127,7 +119,7 @@ contract EmploymentContract {
 
     /// @notice Function for weekly salary payment
     function makePayment() public onlyEmployer isContractSigned {
-		require(isSigned, "Contract must be signed");
+        require(isSigned, "Contract must be signed");
         require(isConfirmed, "Contract must be confirmed by employee");
         require(block.timestamp >= lastPaymentDate + paymentInterval, "Payment interval has not passed");
         require(block.timestamp < endDate, "Contract has ended");
@@ -141,16 +133,17 @@ contract EmploymentContract {
 
     /// @notice Function to terminate the contract
     function terminateContract() public isContractSigned {
-   	    require(isSigned, "Contract must be signed");
+        require(isSigned, "Contract must be signed");
         require(isConfirmed, "Contract must be confirmed by employee");
         require(block.timestamp < endDate, "Contract has already ended");
 
+        uint256 totalPenalty = 2 * penalty;
+        require(address(this).balance >= totalPenalty, "Insufficient contract balance");
+
         if (msg.sender == employer) {
-            require(address(this).balance >= penalty, "Insufficient contract balance");
-            payable(employee).transfer(penalty);
+            payable(employee).transfer(totalPenalty);
         } else if (msg.sender == employee) {
-            require(address(this).balance >= penalty, "Insufficient contract balance");
-            payable(employer).transfer(penalty);
+            payable(employer).transfer(totalPenalty);
         } else {
             revert("Only employer or employee can terminate the contract");
         }
@@ -175,7 +168,6 @@ contract EmploymentContract {
             paymentInterval: paymentInterval,
             isSigned: isSigned,
             isConfirmed: isConfirmed,
-            reserve: reserve,
             penalty: penalty
         });
     }
@@ -232,8 +224,7 @@ contract EmploymentContractFactory {
         uint256 _startDate,
         uint256 _endDate,
         uint256 _penalty,
-        uint256 _paymentInterval,
-        address _reserve
+        uint256 _paymentInterval
     ) public {
         EmploymentContract newContract = new EmploymentContract(
             msg.sender,
@@ -244,8 +235,7 @@ contract EmploymentContractFactory {
             _startDate,
             _endDate,
             _penalty,
-            _paymentInterval,
-            _reserve
+            _paymentInterval
         );
         employmentContracts.push(newContract);
         emit ContractCreated(address(newContract), msg.sender);
