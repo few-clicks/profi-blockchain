@@ -1,46 +1,87 @@
-## Minimal [(Free version)](https://minimal-kit-react.vercel.app/)
+# React Client Application for Smart Contract Management
 
-![license](https://img.shields.io/badge/license-MIT-blue.svg)
+This is a React client application that leverages Material UI for styling and Metamask for authentication. The application serves as a personal dashboard for a service that manages Ethereum smart contracts between employees and employers. Additionally, the client allows interaction with a server to fetch Ethereum coin information and news from the crypto world.
 
-> Free React Admin Dashboard made with Material-UI components and React.
+## Features
 
-![preview](public/assets/preview.jpg)
+- **User Authentication:** Secure login using Metamask.
+- **Smart Contract Management:** Interface for managing Ethereum smart contracts.
+- **Crypto Information:** Fetch and display Ethereum coin data.
+- **Crypto News:** Display the latest news from the crypto world.
 
-## Demo
+## Prerequisites
 
-- [Dashboard Page](https://minimal-kit-react.vercel.app/)
-- [Users Page](https://minimal-kit-react.vercel.app/user)
-- [Products Page](https://minimal-kit-react.vercel.app/products)
-- [Blog Page](https://minimal-kit-react.vercel.app/blog)
-- [Login Page](https://minimal-kit-react.vercel.app/login)
-- [Not Found Page](https://minimal-kit-react.vercel.app/404)
+- Node.js (>= 14.x)
+- Yarn (>= 1.x)
+- Metamask extension installed in your browser
 
-## Quick start
+## Getting Started
 
-- [Download from Github](https://github.com/minimal-ui-kit/material-kit-react/archive/refs/heads/main.zip) or clone the repo : `git clone https://github.com/minimal-ui-kit/material-kit-react.git`
-- Recommended `Node.js v18.x`.
-- **Install:** `yarn install`
-- **Start:** `yarn dev`
-- **Build:** `yarn build`
+### Clone the Repository
 
-## Upgrade to PRO Version
+```bash
+git clone https://github.com/your-repo/react-smart-contract-dashboard.git
+cd react-smart-contract-dashboard
+```
 
-| Minimal Free     | [Minimal Pro](https://material-ui.com/store/items/minimal-dashboard/) |
-| :--------------- | :-------------------------------------------------------------------- |
-| **6** Demo Pages | **70+** Demo Pages                                                    |
-| -                | Authentication with **Amplify**, **Auth0**, **JWT** and **Firebase**  |
-| -                | [+More components](https://minimals.cc/components)                    |
-| -                | Dark & light mode                                                     |
-| -                | Next.js version                                                       |
-| -                | TypeScript version (Standard Plus and Extended license)               |
-| -                | Design Figma File (Standard Plus and Extended license)                |
-| -                | Complete Users Flows                                                  |
-| -                | Learn more: [Package & License](https://docs.minimals.cc/package)     |
+### Install Dependencies
 
-## License
+```bash
+yarn install
+```
 
-Distributed under the MIT License. See [LICENSE](https://github.com/minimal-ui-kit/minimal.free/blob/main/LICENSE.md) for more information.
+### Environment Variables
 
-## Contact us
+Create a `.env` file in the root directory of the project. You can use the provided `.env.example` file as a template:
 
-Email: support@minimals.cc
+```bash
+cp .env.example .env
+```
+
+Edit the `.env` file to include your API base URL:
+
+```env
+VITE_API_BASE_URL=https://your-api-base-url.com
+```
+
+### Running the Application
+
+To start the development server, run:
+
+```bash
+yarn dev
+```
+
+This will start the application on `http://localhost:3000`.
+
+### Building for Production
+
+To build the application for production, run:
+
+```bash
+yarn build
+```
+
+This will create a `dist` directory with the production build of the application.
+
+## Usage
+
+### Authentication with Metamask
+
+The application uses Metamask for user authentication. Ensure that you have the Metamask extension installed in your browser. When you open the application, you will be prompted to connect your Metamask wallet.
+
+### Managing Smart Contracts
+
+Once authenticated, you can navigate to the smart contract management section to create, view, and manage Ethereum smart contracts between employees and employers.
+
+### Fetching Ethereum Information
+
+The application fetches Ethereum coin data and displays it in real-time. You can view the latest price, market cap, and other relevant information.
+
+### Viewing Crypto News
+
+Stay updated with the latest news from the crypto world. The application fetches and displays news articles related to cryptocurrencies.
+
+## Contributing
+
+We welcome contributions to improve this project. Please fork the repository and submit pull requests.
