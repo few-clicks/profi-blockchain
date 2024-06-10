@@ -22,18 +22,18 @@ Each of these folders contains its own README file, which provides detailed func
 
 #### Project page
 
-![project]("./assets/project.png")
+![project](./assets/project.png)
 
 #### Info page
 
-![info1]("./assets/info1.png")
-![info2]("./assets/info2.png")
+![info1](./assets/info1.png)
+![info2](./assets/info2.png)
 
 #### News page
 
-![news]("./assets/news.png")
+![news](./assets/news.png)
 
 #### Blockchain page
 
-![blockchain]("./assets/blockchain.png")
-![blockchain-create]("./assets/blockchain-create.png")
+![blockchain](./assets/blockchain.png)
+![blockchain-create](./assets/blockchain-create.png)
