@@ -60,8 +60,14 @@ const JobCard = ({ contract, handleSignOpen, setCurrentContract, rerender, setRe
     setRerender(!rerender);
   };
 
-  const handleTerminate = () => {
+  const handleTerminate = async () => {
     console.log('Расторгнуть');
+    await smartContract.methods.terminateContract().send({
+      from: account,
+      gas: 1000000,
+      gasPrice: web3.utils.toWei('10', 'gwei'),
+    });
+    setRerender(!rerender);
   };
 
   const getButtonStyles = (disabled) => ({
