@@ -1,5 +1,12 @@
 import { Card, Grid, Button, Typography, CardContent, Box } from '@mui/material';
-import { FaUserPlus, FaCheckCircle, FaExclamationTriangle, FaDollarSign } from 'react-icons/fa';
+import {
+  FaUserPlus,
+  FaCheckCircle,
+  FaExclamationTriangle,
+  FaDollarSign,
+  FaPlusCircle,
+  FaTimesCircle,
+} from 'react-icons/fa';
 import { WalletContext } from 'src/app/WalletContext';
 import { useContext } from 'react';
 
@@ -33,6 +40,14 @@ const JobCard = ({
 
   const handleReport = () => {
     console.log('Репорт');
+  };
+
+  const handleTopUp = () => {
+    console.log('Пополнить');
+  };
+
+  const handleTerminate = () => {
+    console.log('Расторгнуть');
   };
 
   const getButtonStyles = (disabled) => ({
@@ -127,6 +142,22 @@ const JobCard = ({
             variant="contained"
             style={getButtonStyles(!isSigned || account.toLowerCase() !== employer.toLowerCase())}
             startIcon={
+              <FaPlusCircle
+                style={getIconStyles(!isSigned || account.toLowerCase() !== employer.toLowerCase())}
+              />
+            }
+            onClick={handleTopUp}
+            disabled={!isSigned || account.toLowerCase() !== employer.toLowerCase()}
+          >
+            Top Up
+          </Button>
+        </Grid>
+        <Grid item xs={6}>
+          <Button
+            fullWidth
+            variant="contained"
+            style={getButtonStyles(!isSigned || account.toLowerCase() !== employer.toLowerCase())}
+            startIcon={
               <FaDollarSign
                 style={getIconStyles(!isSigned || account.toLowerCase() !== employer.toLowerCase())}
               />
@@ -154,6 +185,19 @@ const JobCard = ({
             disabled={!isSigned || account.toLowerCase() !== employee.toLowerCase()}
           >
             Report
+          </Button>
+        </Grid>
+        <Grid item xs={6}>
+          <Button
+            fullWidth
+            variant="contained"
+            color="error"
+            style={getReportButtonStyles(!isSigned)}
+            startIcon={<FaTimesCircle style={getIconStyles(!isSigned)} />}
+            onClick={handleTerminate}
+            disabled={!isSigned}
+          >
+            Terminate
           </Button>
         </Grid>
       </Grid>
