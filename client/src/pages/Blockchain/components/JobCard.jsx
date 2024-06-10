@@ -35,8 +35,14 @@ const JobCard = ({ contract, handleSignOpen, setCurrentContract, rerender, setRe
     setRerender(!rerender);
   };
 
-  const handlePay = () => {
+  const handlePay = async () => {
     console.log('Оплатить');
+    await smartContract.methods.makePayment().send({
+      from: account,
+      gas: 1000000,
+      gasPrice: web3.utils.toWei('10', 'gwei'),
+    });
+    setRerender(!rerender);
   };
 
   const handleReport = () => {
