@@ -23,6 +23,7 @@ contract EmploymentContract {
         address employee;
         uint256 salary;
         uint256 bonus;
+        uint256 penalty;
         uint256 vacationPay;
         uint256 sickLeavePay;
         uint256 startDate;
@@ -30,14 +31,15 @@ contract EmploymentContract {
         uint256 lastPaymentDate;
         uint256 paymentInterval;
         bool isSigned;
-        address reserve;
+        bool isConfirmed;
     }
 
     bool public isSigned = false;  // Contract signed status
-
-    address public reserve;        // Reserve storage for penalty
+    bool public isConfirmed = false; // Contract confirmed status
 
     event ContractFunded(address indexed from, uint256 amount);
+    event PenaltyDeposited(address indexed from, uint256 amount);
+    event ContractConfirmed(address indexed by);
 
     /// @dev Modifier to check that the action is performed only by the employer
     modifier onlyEmployer() {
@@ -75,12 +77,10 @@ contract EmploymentContract {
         uint256 _startDate,
         uint256 _endDate,
         uint256 _penalty,
-        uint256 _paymentInterval,
-        address _reserve
+        uint256 _paymentInterval
     ) {
         require(_startDate < _endDate, "Start date must be before end date");
         require(_employer != address(0), "Employer address cannot be zero");
-        require(_reserve != address(0), "Reserve address cannot be zero");
 
         employer = _employer;
         salary = _salary;
@@ -91,18 +91,20 @@ contract EmploymentContract {
         endDate = _endDate;
         penalty = _penalty;
         paymentInterval = _paymentInterval;
-        reserve = _reserve;
         lastPaymentDate = block.timestamp; // Contract starts upon deployment
     }
 
     /// @notice Function for the employee to sign the contract
     /// @param _employee Employee's address
-    function signContract(address _employee) public onlyEmployer {
+    function signContract(address _employee) public payable onlyEmployer {
         require(!isSigned, "Contract already signed");
         require(block.timestamp >= startDate, "Contract start date has not been reached");
         require(_employee != address(0), "Employee address cannot be zero");
+        require(msg.value == penalty, "Employer must send the penalty amount");
         employee = _employee;
         isSigned = true;
+
+        emit PenaltyDeposited(msg.sender, penalty);
     }
 
     /// @notice Function for the employee to confirm their signature
@@ -110,11 +112,15 @@ contract EmploymentContract {
         require(isSigned, "Contract must be signed by employer first");
         require(msg.value == penalty, "Employee must send the penalty amount");
 
-        payable(reserve).transfer(penalty);
+        isConfirmed = true;
+        emit PenaltyDeposited(msg.sender, penalty);
+        emit ContractConfirmed(msg.sender);
     }
 
     /// @notice Function for weekly salary payment
     function makePayment() public onlyEmployer isContractSigned {
+        require(isSigned, "Contract must be signed");
+        require(isConfirmed, "Contract must be confirmed by employee");
         require(block.timestamp >= lastPaymentDate + paymentInterval, "Payment interval has not passed");
         require(block.timestamp < endDate, "Contract has ended");
 
@@ -127,19 +133,23 @@ contract EmploymentContract {
 
     /// @notice Function to terminate the contract
     function terminateContract() public isContractSigned {
+        require(isSigned, "Contract must be signed");
+        require(isConfirmed, "Contract must be confirmed by employee");
         require(block.timestamp < endDate, "Contract has already ended");
 
+        uint256 totalPenalty = 2 * penalty;
+        require(address(this).balance >= totalPenalty, "Insufficient contract balance");
+
         if (msg.sender == employer) {
-            require(address(this).balance >= penalty, "Insufficient contract balance");
-            payable(employee).transfer(penalty);
+            payable(employee).transfer(totalPenalty);
         } else if (msg.sender == employee) {
-            require(address(this).balance >= penalty, "Insufficient contract balance");
-            payable(employer).transfer(penalty);
+            payable(employer).transfer(totalPenalty);
         } else {
             revert("Only employer or employee can terminate the contract");
         }
 
         isSigned = false;
+        isConfirmed = false;
     }
 
     // Function to return the contract's details
@@ -157,7 +167,8 @@ contract EmploymentContract {
             lastPaymentDate: lastPaymentDate,
             paymentInterval: paymentInterval,
             isSigned: isSigned,
-            reserve: reserve
+            isConfirmed: isConfirmed,
+            penalty: penalty
         });
     }
 
@@ -213,8 +224,7 @@ contract EmploymentContractFactory {
         uint256 _startDate,
         uint256 _endDate,
         uint256 _penalty,
-        uint256 _paymentInterval,
-        address _reserve
+        uint256 _paymentInterval
     ) public {
         EmploymentContract newContract = new EmploymentContract(
             msg.sender,
@@ -225,8 +235,7 @@ contract EmploymentContractFactory {
             _startDate,
             _endDate,
             _penalty,
-            _paymentInterval,
-            _reserve
+            _paymentInterval
         );
         employmentContracts.push(newContract);
         emit ContractCreated(address(newContract), msg.sender);
@@ -250,6 +259,8 @@ contract EmploymentContractFactory {
         revert("Contract not found");
     }
 
+    /// @notice Function to get details of all contracts
+    /// @return Array of contract details
     function getContractsDetails() public view returns (EmploymentContract.Details[] memory) {
         EmploymentContract.Details[] memory contractsDetails = new EmploymentContract.Details[](employmentContracts.length);
 

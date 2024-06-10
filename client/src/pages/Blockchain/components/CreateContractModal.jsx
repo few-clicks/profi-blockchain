@@ -26,7 +26,6 @@ const CreateObjectModal = ({ open, handleClose, contractFactory, rerender, setRe
     endDate: null,
     paymentInterval: '',
     penalty: '',
-    reserve: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -50,7 +49,6 @@ const CreateObjectModal = ({ open, handleClose, contractFactory, rerender, setRe
     const tempErrors = {};
     tempErrors.title = formData.title ? '' : 'Title is required';
     tempErrors.description = formData.description ? '' : 'Description is required';
-    tempErrors.reserve = formData.reserve ? '' : 'Reserve is required';
     tempErrors.salary =
       formData.salary && !Number.isNaN(Number(formData.salary)) ? '' : 'Valid salary is required';
     tempErrors.startDate = formData.startDate ? '' : 'Start date is required';
@@ -76,8 +74,7 @@ const CreateObjectModal = ({ open, handleClose, contractFactory, rerender, setRe
           Math.floor(formData.startDate.unix()), // startDate
           Math.floor(formData.endDate.unix()), // endDate
           web3.utils.toWei(String(formData.penalty), 'ether'), // penalty
-          formData.paymentInterval,
-          formData.reserve // reserve address
+          formData.paymentInterval
         )
         .send({ from: account, gas: 5000000, gasPrice: web3.utils.toWei('10', 'gwei') });
       setFormData({
@@ -88,7 +85,6 @@ const CreateObjectModal = ({ open, handleClose, contractFactory, rerender, setRe
         endDate: null,
         paymentInterval: '',
         penalty: '',
-        reserve: '',
       });
       setRerender(!rerender);
       handleClose();
@@ -179,16 +175,6 @@ const CreateObjectModal = ({ open, handleClose, contractFactory, rerender, setRe
             type="number"
           />
         </Box>
-        <TextField
-          label="Reserve address"
-          name="reserve"
-          value={formData.reserve}
-          onChange={handleChange}
-          error={!!errors.reserve}
-          helperText={errors.reserve}
-          fullWidth
-          margin="normal"
-        />
         <Button variant="contained" color="primary" onClick={handleSubmit}>
           Submit
         </Button>
