@@ -35,10 +35,13 @@ contract EmploymentContract {
     }
 
     bool public isSigned = false;  // Contract signed status
+    bool public isConfirmed = false; // Contract confirmed status
 
     address public reserve;        // Reserve storage for penalty
 
     event ContractFunded(address indexed from, uint256 amount);
+    event PenaltyDeposited(address indexed from, uint256 amount);
+    event ContractConfirmed(address indexed by);
 
     /// @dev Modifier to check that the action is performed only by the employer
     modifier onlyEmployer() {
@@ -98,12 +101,16 @@ contract EmploymentContract {
 
     /// @notice Function for the employee to sign the contract
     /// @param _employee Employee's address
-    function signContract(address _employee) public onlyEmployer {
+    function signContract(address _employee) public payable onlyEmployer {
         require(!isSigned, "Contract already signed");
         require(block.timestamp >= startDate, "Contract start date has not been reached");
         require(_employee != address(0), "Employee address cannot be zero");
+        require(msg.value == penalty, "Employer must send the penalty amount");
         employee = _employee;
         isSigned = true;
+
+        payable(reserve).transfer(penalty);
+        emit PenaltyDeposited(msg.sender, penalty);
     }
 
     /// @notice Function for the employee to confirm their signature
@@ -112,10 +119,15 @@ contract EmploymentContract {
         require(msg.value == penalty, "Employee must send the penalty amount");
 
         payable(reserve).transfer(penalty);
+        isConfirmed = true;
+        emit PenaltyDeposited(msg.sender, penalty);
+        emit ContractConfirmed(msg.sender);
     }
 
     /// @notice Function for weekly salary payment
     function makePayment() public onlyEmployer isContractSigned {
+		require(isSigned, "Contract must be signed");
+        require(isConfirmed, "Contract must be confirmed by employee");
         require(block.timestamp >= lastPaymentDate + paymentInterval, "Payment interval has not passed");
         require(block.timestamp < endDate, "Contract has ended");
 
@@ -141,6 +153,7 @@ contract EmploymentContract {
         }
 
         isSigned = false;
+        isConfirmed = false;
     }
 
     // Function to return the contract's details
@@ -252,6 +265,8 @@ contract EmploymentContractFactory {
         revert("Contract not found");
     }
 
+    /// @notice Function to get details of all contracts
+    /// @return Array of contract details
     function getContractsDetails() public view returns (EmploymentContract.Details[] memory) {
         EmploymentContract.Details[] memory contractsDetails = new EmploymentContract.Details[](employmentContracts.length);
 
