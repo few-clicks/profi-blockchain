@@ -42,10 +42,9 @@ export default function BlockchainView() {
   const [contracts, setContracts] = useState();
   const [modalCreateOpen, setModalCreateOpen] = useState(false);
   const [modalSignOpen, setModalSignOpen] = useState(false);
-  const [currentContractAddress, setCurrentContractAddress] = useState('');
+  const [currentContract, setCurrentContract] = useState();
 
-  console.log(contracts);
-
+  console.log('CONTR', contracts);
   const navigate = useNavigate();
 
   const handleCreateOpen = () => {
@@ -106,19 +105,23 @@ export default function BlockchainView() {
             contracts.map((contract, index) => (
               <Grid xs={12} md={6} lg={4} key={index}>
                 <JobCard
-                  title={contract.title}
-                  description={contract.description}
-                  salary={Number(contract.salary) / 1e18}
-                  isSigned={contract.isSigned}
-                  isConfirmed={contract.isConfirmed}
-                  penalty={Number(contract.penalty) / 1e18}
-                  startDate={formatDate(new Date(Number(contract.startDate) * 1000))}
-                  endDate={formatDate(new Date(Number(contract.endDate) * 1000))}
-                  employee={contract.employee}
-                  employer={contract.employer}
+                  contract={{
+                    contractAddress: contract.contractAddress,
+                    title: 'Title',
+                    description: 'Default description',
+                    salary: Number(contract.salary) / 1e18,
+                    isSigned: contract.isSigned,
+                    isConfirmed: contract.isConfirmed,
+                    penalty: Number(contract.penalty) / 1e18,
+                    startDate: formatDate(new Date(Number(contract.startDate) * 1000)),
+                    endDate: formatDate(new Date(Number(contract.endDate) * 1000)),
+                    employee: contract.employee,
+                    employer: contract.employer,
+                  }}
                   handleSignOpen={handleSignOpen}
-                  contractAddress={contract.contractAddress}
-                  setCurrentContractAddress={setCurrentContractAddress}
+                  setCurrentContract={setCurrentContract}
+                  rerender={rerender}
+                  setRerender={setRerender}
                 />
               </Grid>
             ))}
@@ -132,7 +135,7 @@ export default function BlockchainView() {
         setRerender={setRerender}
       />
       <SignObjectModal
-        contractAddress={currentContractAddress}
+        currentContract={currentContract}
         open={modalSignOpen}
         handleClose={handleSignClose}
         rerender={rerender}

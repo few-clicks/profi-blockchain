@@ -16,36 +16,23 @@ import employmentContractJSON from '@contracts/EmploymentContract.json';
 
 const CONTRACT_ABI = employmentContractJSON.abi;
 
-const JobCard = ({
-  title = 'Title',
-  description = 'Default description',
-  salary,
-  isSigned,
-  isConfirmed,
-  startDate,
-  endDate,
-  employer,
-  employee,
-  penalty,
-  handleSignOpen,
-  contractAddress,
-  setCurrentContractAddress,
-}) => {
+const JobCard = ({ contract, handleSignOpen, setCurrentContract, rerender, setRerender }) => {
   const { account, web3 } = useContext(WalletContext);
 
   const handleSign = () => {
-    setCurrentContractAddress(contractAddress);
+    setCurrentContract(contract);
     handleSignOpen(true);
   };
 
   const handleConfirm = async () => {
-    const smartContract = new web3.eth.Contract(CONTRACT_ABI, contractAddress);
+    const smartContract = new web3.eth.Contract(CONTRACT_ABI, contract.contractAddress);
     await smartContract.methods.confirmEmployeeSignature().send({
       from: account,
       gas: 1000000,
       gasPrice: web3.utils.toWei('10', 'gwei'),
-      value: web3.utils.toWei(String(penalty), 'ether'),
+      value: web3.utils.toWei(String(contract.penalty), 'ether'),
     });
+    setRerender(!rerender);
   };
 
   const handlePay = () => {
@@ -82,10 +69,10 @@ const JobCard = ({
       <CardContent>
         <Grid container justifyContent="space-between" alignItems="center">
           <Typography variant="h5" component="div" style={{ wordBreak: 'break-word' }}>
-            {title}
+            {contract.title}
           </Typography>
           <Typography variant="h6" component="div" style={{ wordBreak: 'break-word' }}>
-            {salary} ETH
+            {contract.salary} ETH
           </Typography>
         </Grid>
         <Typography
@@ -101,30 +88,30 @@ const JobCard = ({
             textOverflow: 'ellipsis',
           }}
         >
-          {description}
+          {contract.description}
         </Typography>
         <Typography
           variant="body2"
           color="text.secondary"
           style={{ marginTop: '10px', wordBreak: 'break-word' }}
         >
-          {`${startDate} \u2192 ${endDate}`}
+          {`${contract.startDate} \u2192 ${contract.endDate}`}
         </Typography>
         <Box display="flex" alignItems="center" style={{ marginTop: '10px' }}>
           <Typography variant="body2" color="text.secondary">
-            Penalry: {penalty}
+            Penalty: {contract.penalty}
           </Typography>
         </Box>
         <Box display="flex" alignItems="center" style={{ marginTop: '10px' }}>
-          <FaCheckCircle color={isSigned ? 'green' : 'red'} />
+          <FaCheckCircle color={contract.isSigned ? 'green' : 'red'} />
           <Typography variant="body2" color="text.secondary" style={{ marginLeft: '5px' }}>
-            {isSigned ? 'Signed' : 'Unsigned'}
+            {contract.isSigned ? 'Signed' : 'Unsigned'}
           </Typography>
         </Box>
         <Box display="flex" alignItems="center" style={{ marginTop: '10px' }}>
-          <FaCheckCircle color={isSigned ? 'green' : 'red'} />
+          <FaCheckCircle color={contract.isConfirmed ? 'green' : 'red'} />
           <Typography variant="body2" color="text.secondary" style={{ marginLeft: '5px' }}>
-            {isConfirmed ? 'Confirmed' : 'Not confirmed'}
+            {contract.isConfirmed ? 'Confirmed' : 'Not confirmed'}
           </Typography>
         </Box>
       </CardContent>
@@ -133,14 +120,20 @@ const JobCard = ({
           <Button
             fullWidth
             variant="contained"
-            style={getButtonStyles(isSigned || account.toLowerCase() !== employer.toLowerCase())}
+            style={getButtonStyles(
+              contract.isSigned || account.toLowerCase() !== contract.employer.toLowerCase()
+            )}
             startIcon={
               <FaUserPlus
-                style={getIconStyles(isSigned || account.toLowerCase() !== employer.toLowerCase())}
+                style={getIconStyles(
+                  contract.isSigned || account.toLowerCase() !== contract.employer.toLowerCase()
+                )}
               />
             }
             onClick={handleSign}
-            disabled={isSigned || account.toLowerCase() !== employer.toLowerCase()}
+            disabled={
+              contract.isSigned || account.toLowerCase() !== contract.employer.toLowerCase()
+            }
           >
             Sign
           </Button>
@@ -149,14 +142,26 @@ const JobCard = ({
           <Button
             fullWidth
             variant="contained"
-            style={getButtonStyles(!isSigned || account.toLowerCase() !== employee.toLowerCase())}
+            style={getButtonStyles(
+              !contract.isSigned ||
+                contract.isConfirmed ||
+                account.toLowerCase() !== contract.employee.toLowerCase()
+            )}
             startIcon={
               <FaCheckCircle
-                style={getIconStyles(!isSigned || account.toLowerCase() !== employee.toLowerCase())}
+                style={getIconStyles(
+                  !contract.isSigned ||
+                    contract.isConfirmed ||
+                    account.toLowerCase() !== contract.employee.toLowerCase()
+                )}
               />
             }
             onClick={handleConfirm}
-            disabled={!isSigned || account.toLowerCase() !== employee.toLowerCase()}
+            disabled={
+              !contract.isSigned ||
+              contract.isConfirmed ||
+              account.toLowerCase() !== contract.employee.toLowerCase()
+            }
           >
             Confirm
           </Button>
@@ -165,14 +170,14 @@ const JobCard = ({
           <Button
             fullWidth
             variant="contained"
-            style={getButtonStyles(!isSigned || account.toLowerCase() !== employer.toLowerCase())}
+            style={getButtonStyles(account.toLowerCase() !== contract.employer.toLowerCase())}
             startIcon={
               <FaPlusCircle
-                style={getIconStyles(!isSigned || account.toLowerCase() !== employer.toLowerCase())}
+                style={getIconStyles(account.toLowerCase() !== contract.employer.toLowerCase())}
               />
             }
             onClick={handleTopUp}
-            disabled={!isSigned || account.toLowerCase() !== employer.toLowerCase()}
+            disabled={account.toLowerCase() !== contract.employer.toLowerCase()}
           >
             Top Up
           </Button>
@@ -181,14 +186,26 @@ const JobCard = ({
           <Button
             fullWidth
             variant="contained"
-            style={getButtonStyles(!isSigned || account.toLowerCase() !== employer.toLowerCase())}
+            style={getButtonStyles(
+              !contract.isSigned ||
+                !contract.isConfirmed ||
+                account.toLowerCase() !== contract.employer.toLowerCase()
+            )}
             startIcon={
               <FaDollarSign
-                style={getIconStyles(!isSigned || account.toLowerCase() !== employer.toLowerCase())}
+                style={getIconStyles(
+                  !contract.isSigned ||
+                    !contract.isConfirmed ||
+                    account.toLowerCase() !== contract.employer.toLowerCase()
+                )}
               />
             }
             onClick={handlePay}
-            disabled={!isSigned || account.toLowerCase() !== employer.toLowerCase()}
+            disabled={
+              !contract.isSigned ||
+              !contract.isConfirmed ||
+              account.toLowerCase() !== contract.employer.toLowerCase()
+            }
           >
             Pay
           </Button>
@@ -199,15 +216,25 @@ const JobCard = ({
             variant="contained"
             color="error"
             style={getReportButtonStyles(
-              !isSigned || account.toLowerCase() !== employee.toLowerCase()
+              !contract.isSigned ||
+                !contract.isConfirmed ||
+                account.toLowerCase() !== contract.employee.toLowerCase()
             )}
             startIcon={
               <FaExclamationTriangle
-                style={getIconStyles(!isSigned || account.toLowerCase() !== employee.toLowerCase())}
+                style={getIconStyles(
+                  !contract.isSigned ||
+                    !contract.isConfirmed ||
+                    account.toLowerCase() !== contract.employee.toLowerCase()
+                )}
               />
             }
             onClick={handleReport}
-            disabled={!isSigned || account.toLowerCase() !== employee.toLowerCase()}
+            disabled={
+              !contract.isSigned ||
+              !contract.isConfirmed ||
+              account.toLowerCase() !== contract.employee.toLowerCase()
+            }
           >
             Report
           </Button>
@@ -217,10 +244,12 @@ const JobCard = ({
             fullWidth
             variant="contained"
             color="error"
-            style={getReportButtonStyles(!isSigned)}
-            startIcon={<FaTimesCircle style={getIconStyles(!isSigned)} />}
+            style={getReportButtonStyles(!contract.isSigned || !contract.isConfirmed)}
+            startIcon={
+              <FaTimesCircle style={getIconStyles(!contract.isSigned || !contract.isConfirmed)} />
+            }
             onClick={handleTerminate}
-            disabled={!isSigned}
+            disabled={!contract.isSigned || !contract.isConfirmed}
           >
             Terminate
           </Button>

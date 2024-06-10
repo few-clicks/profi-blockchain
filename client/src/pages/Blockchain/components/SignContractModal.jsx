@@ -20,9 +20,8 @@ const style = {
 
 const CONTRACT_ABI = employmentContractJSON.abi;
 
-const SignObjectModal = ({ open, handleClose, rerender, setRerender, contractAddress }) => {
+const SignObjectModal = ({ open, handleClose, rerender, setRerender, currentContract }) => {
   const { account, web3 } = useContext(WalletContext);
-  console.log(account, web3);
   const [address, setAddress] = useState('');
 
   const [error, setError] = useState('');
@@ -39,10 +38,13 @@ const SignObjectModal = ({ open, handleClose, rerender, setRerender, contractAdd
 
   const handleSubmit = async () => {
     if (validate()) {
-      const smartContract = new web3.eth.Contract(CONTRACT_ABI, contractAddress);
-      await smartContract.methods
-        .signContract(address)
-        .send({ from: account, gas: 1000000, gasPrice: web3.utils.toWei('10', 'gwei') });
+      const smartContract = new web3.eth.Contract(CONTRACT_ABI, currentContract.contractAddress);
+      await smartContract.methods.signContract(address).send({
+        from: account,
+        gas: 1000000,
+        gasPrice: web3.utils.toWei('10', 'gwei'),
+        value: web3.utils.toWei(String(currentContract.penalty), 'ether'),
+      });
       setAddress('');
       setRerender(!rerender);
       handleClose();

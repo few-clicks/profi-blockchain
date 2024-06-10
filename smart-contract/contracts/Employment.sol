@@ -31,6 +31,7 @@ contract EmploymentContract {
         uint256 lastPaymentDate;
         uint256 paymentInterval;
         bool isSigned;
+        bool isConfirmed;
         address reserve;
     }
 
@@ -140,6 +141,8 @@ contract EmploymentContract {
 
     /// @notice Function to terminate the contract
     function terminateContract() public isContractSigned {
+   	    require(isSigned, "Contract must be signed");
+        require(isConfirmed, "Contract must be confirmed by employee");
         require(block.timestamp < endDate, "Contract has already ended");
 
         if (msg.sender == employer) {
@@ -171,6 +174,7 @@ contract EmploymentContract {
             lastPaymentDate: lastPaymentDate,
             paymentInterval: paymentInterval,
             isSigned: isSigned,
+            isConfirmed: isConfirmed,
             reserve: reserve,
             penalty: penalty
         });
