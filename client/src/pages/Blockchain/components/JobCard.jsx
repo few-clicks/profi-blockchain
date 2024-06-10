@@ -21,6 +21,7 @@ const JobCard = ({
   description = 'Default description',
   salary,
   isSigned,
+  isConfirmed,
   startDate,
   endDate,
   employer,
@@ -110,9 +111,20 @@ const JobCard = ({
           {`${startDate} \u2192 ${endDate}`}
         </Typography>
         <Box display="flex" alignItems="center" style={{ marginTop: '10px' }}>
+          <Typography variant="body2" color="text.secondary">
+            Penalry: {penalty}
+          </Typography>
+        </Box>
+        <Box display="flex" alignItems="center" style={{ marginTop: '10px' }}>
           <FaCheckCircle color={isSigned ? 'green' : 'red'} />
           <Typography variant="body2" color="text.secondary" style={{ marginLeft: '5px' }}>
             {isSigned ? 'Signed' : 'Unsigned'}
+          </Typography>
+        </Box>
+        <Box display="flex" alignItems="center" style={{ marginTop: '10px' }}>
+          <FaCheckCircle color={isSigned ? 'green' : 'red'} />
+          <Typography variant="body2" color="text.secondary" style={{ marginLeft: '5px' }}>
+            {isConfirmed ? 'Confirmed' : 'Not confirmed'}
           </Typography>
         </Box>
       </CardContent>

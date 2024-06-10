@@ -110,6 +110,7 @@ export default function BlockchainView() {
                   description={contract.description}
                   salary={Number(contract.salary) / 1e18}
                   isSigned={contract.isSigned}
+                  isConfirmed={contract.isConfirmed}
                   penalty={Number(contract.penalty) / 1e18}
                   startDate={formatDate(new Date(Number(contract.startDate) * 1000))}
                   endDate={formatDate(new Date(Number(contract.endDate) * 1000))}
