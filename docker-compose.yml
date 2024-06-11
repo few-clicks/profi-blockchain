@@ -89,13 +89,13 @@ services:
         build: ./server
         container_name: server
         ports:
-            - "8080:8080"
+            - "9000:8080"
         depends_on:
             - couchdb
         labels:
             - "traefik.enable=true"
             - "traefik.http.routers.server.rule=Host(`server.shanthi-bunch.ru`)"
-            - "traefik.http.services.server.loadbalancer.server.port=8080"
+            - "traefik.http.services.server.loadbalancer.server.port=9000"
             - "traefik.http.routers.server.entrypoints=websecure"
             - "traefik.http.routers.server.tls.certresolver=le"
         networks:
