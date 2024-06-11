@@ -27,6 +27,12 @@ services:
         ports:
             - "3000:3030"
 
+    api:
+        build: ./api-microservice
+        container_name: api
+        ports:
+            - "4000:4000"
+
     couchdb:
         image: couchdb:latest
         container_name: couchdb
