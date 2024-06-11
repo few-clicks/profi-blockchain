@@ -20,9 +20,13 @@ Each of these folders contains its own README file, which provides detailed func
 
 ## UI
 
+#### Architecture
+
+![architecture](./assets/worker2.png)
+
 #### Login page
 
-![login](./assets/login.jpg)
+![login](./assets/login2.png)
 
 
 #### Project page
