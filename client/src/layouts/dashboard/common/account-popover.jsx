@@ -18,13 +18,10 @@ import { shortenAddress } from 'src/utils/format-address';
 
 export default function AccountPopover() {
   const [open, setOpen] = useState(null);
-  const { account, setAccount, setWeb3 } = useContext(WalletContext);
+  const { account, setWeb3 } = useContext(WalletContext);
   const navigate = useNavigate();
 
-  console.log(account);
-
   const disconnect = () => {
-    setAccount('');
     setWeb3(null);
     navigate('/login'); // Redirect to login after disconnect
   };

@@ -1,15 +1,15 @@
-import LoadingButton from '@mui/lab/LoadingButton';
-import { Box, Button } from '@mui/material';
-import { useContext } from 'react';
+import { useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WalletContext } from 'src/app/WalletContext';
-
 import Web3 from 'web3';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { Box, Button, Typography } from '@mui/material';
+import { shortenAddress } from 'src/utils/format-address';
 
 // ----------------------------------------------------------------------
 
 export default function LoginView() {
-  const { setAccount, setWeb3 } = useContext(WalletContext);
+  const { setAccount, setWeb3, account } = useContext(WalletContext);
   const navigate = useNavigate();
 
   const connectWallet = async () => {
@@ -42,7 +42,6 @@ export default function LoginView() {
           params: [{ eth_accounts: {} }],
         });
         setAccount(accounts[0].caveats[0].value[0]);
-        navigate('/'); // Redirect to dashboard after switching account
       } catch (error) {
         console.error('User denied account access or switching');
       }
@@ -50,6 +49,8 @@ export default function LoginView() {
       console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
     }
   };
+
+  useEffect(() => {}, [setAccount, navigate]);
 
   return (
     <Box
@@ -61,6 +62,16 @@ export default function LoginView() {
       gap={1}
       textAlign="center"
     >
+      {account && (
+        <>
+          <Typography variant="h1" component="div">
+            👋
+          </Typography>
+          <Typography variant="body1" component="div">
+            {shortenAddress(account)}
+          </Typography>
+        </>
+      )}
       <LoadingButton
         fullWidth
         size="large"

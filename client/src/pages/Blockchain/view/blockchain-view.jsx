@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState, useMemo } from 'react';
+import { useEffect, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Stack from '@mui/material/Stack';
@@ -25,9 +25,6 @@ import SignObjectModal from '../components/SignContractModal';
 const CONTRACT_FACTORY_ADDRESS = employmentContractFactoryJSON.networks['5777'].address;
 const CONTRACT_FACTORY_ABI = employmentContractFactoryJSON.abi;
 
-console.log('contractFactory factory address', CONTRACT_FACTORY_ADDRESS);
-console.log('contractFactory factory abi', CONTRACT_FACTORY_ABI);
-
 function formatDate(inputDate) {
   const day = String(inputDate.getDate()).padStart(2, '0');
   const month = String(inputDate.getMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0, поэтому нужно прибавить 1
@@ -37,14 +34,14 @@ function formatDate(inputDate) {
 }
 
 export default function BlockchainView() {
-  const { web3 } = useContext(WalletContext);
+  const { web3, account } = useContext(WalletContext);
   const [rerender, setRerender] = useState(false);
   const [contracts, setContracts] = useState();
   const [modalCreateOpen, setModalCreateOpen] = useState(false);
   const [modalSignOpen, setModalSignOpen] = useState(false);
   const [currentContract, setCurrentContract] = useState();
+  const [contractFactory, setContractFactory] = useState(null);
 
-  console.log('CONTR', contracts);
   const navigate = useNavigate();
 
   const handleCreateOpen = () => {
@@ -61,14 +58,18 @@ export default function BlockchainView() {
     setModalSignOpen(false);
   };
 
-  const contractFactory = useMemo(
-    () => web3 && new web3.eth.Contract(CONTRACT_FACTORY_ABI, CONTRACT_FACTORY_ADDRESS),
-    [web3]
-  );
+  useEffect(() => {
+    console.log('OP', web3, account);
+    if (web3) {
+      const factory = new web3.eth.Contract(CONTRACT_FACTORY_ABI, CONTRACT_FACTORY_ADDRESS);
+      setContractFactory(factory);
+    }
+  }, [web3, account]);
 
   useEffect(() => {
     const fetchContracts = async () => {
       try {
+        console.log('TEST', contractFactory);
         const contractsDetails = await contractFactory?.methods.getContractsDetails().call();
 
         fetch(import.meta.env.VITE_SERVER_URL, {
@@ -84,8 +85,6 @@ export default function BlockchainView() {
             return response.json();
           })
           .then((contractsFromServer) => {
-            console.log('All contracts from server:', contractsFromServer);
-
             const updatedContracts = contractsDetails.map((contract) => {
               const detail = contractsFromServer.find(
                 (d) => d.contractId === contract.contractAddress
@@ -111,7 +110,9 @@ export default function BlockchainView() {
       }
     };
 
-    fetchContracts();
+    if (contractFactory) {
+      fetchContracts();
+    }
   }, [contractFactory, navigate, rerender]);
 
   return (
