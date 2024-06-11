@@ -82,7 +82,7 @@ const CreateObjectModal = ({ open, handleClose, contractFactory, rerender, setRe
       const contractId = event?.returnValues?.contractAddress;
 
       if (contractId) {
-        fetch(import.meta.env.VITE_SERVER_URL, {
+        fetch(`${import.meta.env.VITE_SERVER_URL}/item`, {
           method: 'POST',
           mode: 'no-cors',
           headers: {
