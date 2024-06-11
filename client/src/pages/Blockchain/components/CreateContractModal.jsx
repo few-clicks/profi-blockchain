@@ -65,7 +65,7 @@ const CreateObjectModal = ({ open, handleClose, contractFactory, rerender, setRe
 
   const handleSubmit = async () => {
     if (validate()) {
-      await contractFactory.methods
+      const factoryResponse = await contractFactory.methods
         .createEmploymentContract(
           web3.utils.toWei(String(formData.salary), 'ether'), // salary
           web3.utils.toWei('0.1', 'ether'), // bonus
@@ -77,6 +77,37 @@ const CreateObjectModal = ({ open, handleClose, contractFactory, rerender, setRe
           formData.paymentInterval
         )
         .send({ from: account, gas: 5000000, gasPrice: web3.utils.toWei('10', 'gwei') });
+
+      const event = factoryResponse?.events?.ContractCreated;
+      const contractId = event?.returnValues?.contractAddress;
+
+      if (contractId) {
+        fetch(import.meta.env.VITE_SERVER_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contractId,
+            title: formData.title,
+            description: formData.description,
+          }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(response.statusText);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log('Created item:', data);
+          })
+          .catch((error) => {
+            console.error('There was a problem with the fetch operation:', error);
+          });
+      }
+
       setFormData({
         title: '',
         description: '',

@@ -36,6 +36,8 @@ func main() {
 
     router := mux.NewRouter()
 
+    router.Use(corsMiddleware)
+
     router.HandleFunc("/", getAllItems).Methods("GET")
     router.HandleFunc("/{id}", getItem).Methods("GET")
     // router.HandleFunc("/{id}", deleteItem).Methods("DELETE")
@@ -180,4 +182,21 @@ func generateRandomID(length int) string {
         log.Fatalf("Failed to generate random ID: %v", err)
     }
     return hex.EncodeToString(bytes)
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	log.Println("CORS")
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+    	log.Println("HANDLE CORS")
+        w.Header().Set("Access-Control-Allow-Origin", "*")
+        w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+        if r.Method == "OPTIONS" {
+            w.WriteHeader(http.StatusOK)
+            return
+        }
+
+        next.ServeHTTP(w, r)
+    })
 }
