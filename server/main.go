@@ -36,7 +36,7 @@ func main() {
 
     router := mux.NewRouter()
 
-    router.Use(corsMiddleware)
+    // router.Use(corsMiddleware)
 
     router.HandleFunc("/", getAllItems).Methods("GET")
     router.HandleFunc("/{id}", getItem).Methods("GET")
