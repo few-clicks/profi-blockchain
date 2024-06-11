@@ -3,17 +3,29 @@ version: "3.8"
 services:
     ganache:
         image: trufflesuite/ganache-cli
+        container_name: ganache
         ports:
             - "${GANACHE_PORT}:${GANACHE_PORT}"
         command: ganache-cli -h 0.0.0.0 -p ${GANACHE_PORT} --chainId ${GANACHE_CHAINID} --networkId ${GANACHE_NETWORKID}
 
-    app:
-        build: smart-contract
+    truffle:
+        build: ./smart-contract
+        container_name: truffle
         depends_on:
             - ganache
         volumes:
-            - .smart-contract:/app
+            - smart-contract-build:/app/build
         command: ["truffle", "migrate", "--network", "testnet"]
+
+    client:
+        build: ./client
+        container_name: client
+        depends_on:
+            - truffle
+        volumes:
+            - smart-contract-build:/smart-contract/build
+        ports:
+            - "3000:3030"
 
     couchdb:
         image: couchdb:latest
@@ -27,5 +39,6 @@ services:
             - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
 
 volumes:
+    smart-contract-build:
     couchdb_data:
         driver: local
