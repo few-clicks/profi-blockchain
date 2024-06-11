@@ -143,7 +143,7 @@ export default function BlockchainView() {
                   contract={{
                     contractAddress: contract.contractAddress,
                     title: contract.title || 'No title',
-                    description: contract.desctiption || 'No description',
+                    description: contract.description || 'No description',
                     salary: Number(contract.salary) / 1e18,
                     isSigned: contract.isSigned,
                     isConfirmed: contract.isConfirmed,
