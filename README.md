@@ -18,11 +18,12 @@ This project is a decentralized application (DApp) designed for creating and man
 
 Each of these folders contains its own README file, which provides detailed functionality and usage instructions for the respective component.
 
-## UI
 
-#### Architecture
+## Architecture
 
 ![architecture](./assets/worker2.png)
+
+## UI
 
 #### Login page
 
