@@ -13,7 +13,6 @@ import (
 
 	_ "github.com/go-kivik/couchdb/v3"
 	"github.com/go-kivik/kivik/v3"
-	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
 
@@ -34,18 +33,12 @@ func main() {
     time.Sleep(3 * time.Second)
     initDb()
 
-    router := mux.NewRouter()
-
-    // router.Use(corsMiddleware)
-
-    router.HandleFunc("/", getAllItems).Methods("GET")
-    router.HandleFunc("/{id}", getItem).Methods("GET")
-    // router.HandleFunc("/{id}", deleteItem).Methods("DELETE")
-    router.HandleFunc("/", createItem).Methods("POST")
-    // router.HandleFunc("/{id}", updateItem).Methods("PUT")
+    http.HandleFunc("/", corsMiddleware(getAllItems))
+    http.HandleFunc("/item", corsMiddleware(createItem))
+    http.HandleFunc("/item/", corsMiddleware(itemHandler))
 
     fmt.Println("Server is running on port 9000")
-    log.Fatal(http.ListenAndServe(":9000", router))
+    log.Fatal(http.ListenAndServe(":9000", nil))
 }
 
 func loadEnv() {
@@ -77,13 +70,18 @@ func initDb() {
 }
 
 func createItem(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodPost {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
+
     var item Item
     if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
         http.Error(w, fmt.Sprintf("Failed to decode item: %v", err), http.StatusBadRequest)
         return
     }
 
-    item.ID = generateRandomID(32) // Генерация случайного ID
+    item.ID = generateRandomID(32)
     rev, err := db.Put(context.TODO(), item.ID, item)
     if err != nil {
         http.Error(w, fmt.Sprintf("Failed to create item: %v", err), http.StatusInternalServerError)
@@ -98,11 +96,23 @@ func createItem(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func getItem(w http.ResponseWriter, r *http.Request) {
-    params := mux.Vars(r)
+func itemHandler(w http.ResponseWriter, r *http.Request) {
+    id := r.URL.Path[len("/item/"):]
+    switch r.Method {
+    case http.MethodGet:
+        getItem(w, r, id)
+    case http.MethodDelete:
+        deleteItem(w, r, id)
+    case http.MethodPut:
+        updateItem(w, r, id)
+    default:
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+    }
+}
 
+func getItem(w http.ResponseWriter, r *http.Request, id string) {
     var item Item
-    if err := db.Get(context.TODO(), params["id"]).ScanDoc(&item); err != nil {
+    if err := db.Get(context.TODO(), id).ScanDoc(&item); err != nil {
         http.Error(w, fmt.Sprintf("Failed to get item: %v", err), http.StatusInternalServerError)
         return
     }
@@ -113,11 +123,9 @@ func getItem(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func deleteItem(w http.ResponseWriter, r *http.Request) {
-    params := mux.Vars(r)
-
-    item := Item{ID: params["id"]}
-    if err := db.Get(context.TODO(), item.ID).ScanDoc(&item); err != nil {
+func deleteItem(w http.ResponseWriter, r *http.Request, id string) {
+    var item Item
+    if err := db.Get(context.TODO(), id).ScanDoc(&item); err != nil {
         http.Error(w, fmt.Sprintf("Failed to get item: %v", err), http.StatusInternalServerError)
         return
     }
@@ -131,6 +139,11 @@ func deleteItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func getAllItems(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodGet {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
+
     rows, err := db.AllDocs(context.TODO(), kivik.Options{"include_docs": true})
     if err != nil {
         http.Error(w, fmt.Sprintf("Failed to get all items: %v", err), http.StatusInternalServerError)
@@ -154,15 +167,14 @@ func getAllItems(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func updateItem(w http.ResponseWriter, r *http.Request) {
-    params := mux.Vars(r)
+func updateItem(w http.ResponseWriter, r *http.Request, id string) {
     var item Item
     if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
         http.Error(w, fmt.Sprintf("Failed to decode item: %v", err), http.StatusBadRequest)
         return
     }
 
-    item.ID = params["id"]
+    item.ID = id
     rev, err := db.Put(context.TODO(), item.ID, item)
     if err != nil {
         http.Error(w, fmt.Sprintf("Failed to update item: %v", err), http.StatusInternalServerError)
@@ -184,8 +196,8 @@ func generateRandomID(length int) string {
     return hex.EncodeToString(bytes)
 }
 
-func corsMiddleware(next http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
         log.Println("CORS Middleware triggered")
         w.Header().Set("Access-Control-Allow-Origin", "*")
         w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -197,6 +209,6 @@ func corsMiddleware(next http.Handler) http.Handler {
             return
         }
 
-        next.ServeHTTP(w, r)
-    })
+        next(w, r)
+    }
 }
