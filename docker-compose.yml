@@ -45,9 +45,25 @@ services:
         environment:
             - COUCHDB_USER=${COUCHDB_USER}
             - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+        networks:
+            - mynetwork
+
+    server:
+        build: ./server
+        container_name: server
+        ports:
+            - "8080:8080"
+        depends_on:
+            - couchdb
+        networks:
+            - mynetwork
 
 volumes:
     smart-contract-build:
     ganache_data:
     couchdb_data:
         driver: local
+
+networks:
+    mynetwork:
+        driver: bridge
