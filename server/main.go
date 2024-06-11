@@ -44,8 +44,8 @@ func main() {
     router.HandleFunc("/", createItem).Methods("POST")
     // router.HandleFunc("/{id}", updateItem).Methods("PUT")
 
-    fmt.Println("Server is running on port 8080")
-    log.Fatal(http.ListenAndServe(":8080", router))
+    fmt.Println("Server is running on port 9000")
+    log.Fatal(http.ListenAndServe(":9000", router))
 }
 
 func loadEnv() {

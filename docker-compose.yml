@@ -55,12 +55,10 @@ services:
             - truffle
         volumes:
             - smart-contract-build:/smart-contract/build
-        ports:
-            - "3000:3030"
         labels:
             - "traefik.enable=true"
             - "traefik.http.routers.worker.rule=Host(`worker.shanthi-bunch.ru`)"
-            - "traefik.http.services.worker.loadbalancer.server.port=3000"
+            - "traefik.http.services.worker.loadbalancer.server.port=3030"
             - "traefik.http.routers.worker.entrypoints=websecure"
             - "traefik.http.routers.worker.tls.certresolver=le"
         networks:
@@ -88,8 +86,6 @@ services:
     server:
         build: ./server
         container_name: server
-        ports:
-            - "9000:8080"
         depends_on:
             - couchdb
         labels:
