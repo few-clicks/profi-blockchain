@@ -70,7 +70,41 @@ export default function BlockchainView() {
     const fetchContracts = async () => {
       try {
         const contractsDetails = await contractFactory?.methods.getContractsDetails().call();
-        setContracts(contractsDetails);
+
+        fetch(import.meta.env.VITE_SERVER_URL, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(response.statusText);
+            }
+            return response.json();
+          })
+          .then((contractsFromServer) => {
+            console.log('All contracts from server:', contractsFromServer);
+
+            const updatedContracts = contractsDetails.map((contract) => {
+              const detail = contractsFromServer.find(
+                (d) => d.contractId === contract.contractAddress
+              );
+              if (detail) {
+                return {
+                  ...contract,
+                  title: detail.title,
+                  description: detail.description,
+                };
+              }
+              return contract;
+            });
+            setContracts(updatedContracts);
+          })
+          .catch((error) => {
+            console.error('There was a problem with the fetch operation:', error);
+            setContracts(contractsDetails);
+          });
       } catch (error) {
         console.error('Error fetching contracts:', error);
         navigate('/login');
@@ -107,8 +141,8 @@ export default function BlockchainView() {
                 <JobCard
                   contract={{
                     contractAddress: contract.contractAddress,
-                    title: 'Title',
-                    description: 'Default description',
+                    title: contract.title || 'No title',
+                    description: contract.desctiption || 'No description',
                     salary: Number(contract.salary) / 1e18,
                     isSigned: contract.isSigned,
                     isConfirmed: contract.isConfirmed,
