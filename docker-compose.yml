@@ -69,10 +69,10 @@ services:
         container_name: api
         labels:
             - "traefik.enable=true"
-            - "traefik.http.routers.api.rule=Host(`api.shanthi-bunch.ru`)"
-            - "traefik.http.services.api.loadbalancer.server.port=4000"
-            - "traefik.http.routers.api.entrypoints=websecure"
-            - "traefik.http.routers.api.tls.certresolver=le"
+            - "traefik.http.routers.parser.rule=Host(`parser.shanthi-bunch.ru`)"
+            - "traefik.http.services.parser.loadbalancer.server.port=4000"
+            - "traefik.http.routers.parser.entrypoints=websecure"
+            - "traefik.http.routers.parser.tls.certresolver=le"
         networks:
             - proxy
 
