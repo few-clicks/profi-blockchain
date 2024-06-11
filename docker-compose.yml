@@ -1,6 +1,81 @@
 version: "3.8"
 
 services:
+    traefik:
+        image: traefik:v2.4
+        networks:
+            - proxy
+        command:
+            - "--log.level=DEBUG"
+            - "--api.dashboard=true"
+            - "--providers.docker=true"
+            - "--providers.docker.exposedbydefault=false"
+            - "--providers.docker.network=proxy"
+            - "--entrypoints.websecure.address=:443"
+            - "--certificatesresolvers.le.acme.tlschallenge=true"
+            - "--certificatesresolvers.le.acme.email=shanthi.bunch@gmail.com"
+            - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+        ports:
+            - "80:80"
+            - "443:443"
+            - "8080:8080"
+        volumes:
+            - "./letsencrypt:/letsencrypt"
+            - "/var/run/docker.sock:/var/run/docker.sock:ro"
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.api.rule=Host(`traefik.shanthi-bunch.ru`)"
+            - "traefik.http.routers.api.service=api@internal"
+            - "traefik.http.routers.api.middlewares=auth"
+            - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USERNAME}:${TRAEFIK_PASSWORD}"
+            - "traefik.http.routers.api.tls.certresolver=le"
+
+    ganache:
+        image: trufflesuite/ganache-cli
+        container_name: ganache
+        ports:
+            - "${GANACHE_PORT}:${GANACHE_PORT}"
+        command: ganache-cli -h 0.0.0.0 -p ${GANACHE_PORT} --chainId ${GANACHE_CHAINID} --networkId ${GANACHE_NETWORKID}
+        volumes:
+            - ganache_data:/data
+
+    truffle:
+        build: ./smart-contract
+        container_name: truffle
+        depends_on:
+            - ganache
+        volumes:
+            - smart-contract-build:/app/build
+        command: ["truffle", "migrate", "--network", "testnet"]
+
+    client:
+        build: ./client
+        container_name: client
+        depends_on:
+            - truffle
+        volumes:
+            - smart-contract-build:/smart-contract/build
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.worker.rule=Host(`worker.shanthi-bunch.ru`)"
+            - "traefik.http.services.worker.loadbalancer.server.port=3030"
+            - "traefik.http.routers.worker.entrypoints=websecure"
+            - "traefik.http.routers.worker.tls.certresolver=le"
+        networks:
+            - proxy
+
+    api:
+        build: ./api-microservice
+        container_name: api
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.parser.rule=Host(`parser.shanthi-bunch.ru`)"
+            - "traefik.http.services.parser.loadbalancer.server.port=4000"
+            - "traefik.http.routers.parser.entrypoints=websecure"
+            - "traefik.http.routers.parser.tls.certresolver=le"
+        networks:
+            - proxy
+
     couchdb:
         image: couchdb:latest
         container_name: couchdb
@@ -11,7 +86,34 @@ services:
         environment:
             - COUCHDB_USER=${COUCHDB_USER}
             - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+        networks:
+            - mynetwork
+
+    server:
+        build: ./server
+        container_name: server
+        depends_on:
+            - couchdb
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.server.rule=Host(`server.shanthi-bunch.ru`)"
+            - "traefik.http.services.server.loadbalancer.server.port=9000"
+            - "traefik.http.routers.server.entrypoints=websecure"
+            - "traefik.http.routers.server.tls.certresolver=le"
+        networks:
+            - mynetwork
+            - proxy
 
 volumes:
+    smart-contract-build:
+    ganache_data:
     couchdb_data:
         driver: local
+
+networks:
+    mynetwork:
+        driver: bridge
+    proxy:
+        driver: overlay
+        attachable: true
+        name: proxy
